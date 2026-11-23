@@ -1,0 +1,7 @@
+posting_month,filename,channel,records,known_education,known_experience,known_telework,telework_yes,known_region,known_weekend,weekend_yes
+2026-08,job-bank-open-data-all-job-postings-en-aug2026.csv,Direct,22800,22800,22800,22800,0,22735,22800,8889
+2026-08,job-bank-open-data-all-job-postings-en-aug2026.csv,External,30999,0,0,0,0,30671,0,
+2026-09,job-bank-open-data-all-job-postings-en-sept2026.csv,Direct,22260,22260,22260,22260,0,22210,22260,8701
+2026-09,job-bank-open-data-all-job-postings-en-sept2026.csv,External,30108,0,0,0,0,29836,0,
+2026-10,job-bank-open-data-all-job-postings-en-oct2026.csv,Direct,22113,22113,22113,22113,0,22063,22113,8682
+2026-10,job-bank-open-data-all-job-postings-en-oct2026.csv,External,37017,0,0,0,0,36000,0,

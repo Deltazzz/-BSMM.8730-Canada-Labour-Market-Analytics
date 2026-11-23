@@ -1,0 +1,48 @@
+{
+  "$schema": "https://developer.microsoft.com/json-schemas/fabric/item/report/definition/page/2.0.0/schema.json",
+  "name": "eba7fd85faf87ea0f53f",
+  "displayName": "Occupation detail",
+  "displayOption": "FitToPage",
+  "height": 720,
+  "width": 1280,
+  "visibility": "HiddenInViewMode",
+  "filterConfig": {
+    "filters": [
+      {
+        "name": "Filtereba7fd85faf87ea0f53f1897",
+        "field": {
+          "Column": {
+            "Expression": {
+              "SourceRef": {
+                "Entity": "Postings"
+              }
+            },
+            "Property": "Occupation"
+          }
+        },
+        "type": "Categorical",
+        "howCreated": "Drillthrough"
+      }
+    ]
+  },
+  "pageBinding": {
+    "name": "Pod",
+    "type": "Drillthrough",
+    "parameters": [
+      {
+        "name": "Param_Filtereba7fd85faf87ea0f53f1897",
+        "boundFilter": "Filtereba7fd85faf87ea0f53f1897",
+        "fieldExpr": {
+          "Column": {
+            "Expression": {
+              "SourceRef": {
+                "Entity": "Postings"
+              }
+            },
+            "Property": "Occupation"
+          }
+        }
+      }
+    ]
+  }
+}

@@ -1,0 +1,10 @@
+/BSMM_8730_D1_Project_Proposal.docx
+/data/raw/
+/data/clean/postings.csv
+/data/clean/jobbank.sqlite
+/.qa/
+/.venv/
+__pycache__/
+*.pyc
+**/.pbi/
+~$*

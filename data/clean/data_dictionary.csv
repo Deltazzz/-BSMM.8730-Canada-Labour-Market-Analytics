@@ -1,0 +1,73 @@
+source_header,clean_field,mysql_type,definition
+WIC Job Location Snapshot ID,snapshot_id,VARCHAR(40),Publisher's job-location snapshot identifier. A distinct ad or employer identifier is unavailable.
+Job Title,job_title,TEXT,Standardized job title as supplied.
+Original Job Title,original_job_title,TEXT,Original title supplied by the source.
+NOC 2016 Code,noc_2016_code,VARCHAR(80),"Earlier NOC 2016 code, retained as text."
+NOC 2016 Code Name,noc_2016_code_name,VARCHAR(255),NOC 2016 occupation label.
+NOC21 Code,noc,CHAR(5),Five-character 2021 National Occupational Classification unit-group code. Preserve leading zeros.
+NOC21 Code Name,occupation,VARCHAR(255),English label for the NOC 2021 code.
+External Indicator,external_indicator,VARCHAR(80),"Source indicator. 0 direct, 1 external."
+First Posting Date,first_posting_date,DATE,First posting date in the release. Determines the analysis month.
+Vacancy Count,vacancy_count,INT UNSIGNED,Number of advertised openings attached to the location record.
+Official Language,official_language,VARCHAR(80),Language category recorded on the posting.
+Education LOS,education,VARCHAR(255),Advertised education requirement.
+Experience Level,experience,VARCHAR(80),Advertised experience category. Explicit no experience is a known requirement.
+Government Type,government_type,VARCHAR(80),Government employer category.
+Placement Agency,placement_agency,VARCHAR(80),Placement agency indicator.
+NAICS,naics,VARCHAR(255),Industry description supplied in the NAICS field.
+Province/Territory,province,VARCHAR(80),Province or territory of the listed location.
+City,city,VARCHAR(255),Listed city.
+Work Location Postal Code,work_location_postal_code,VARCHAR(80),Postal code of the job location.
+Economic  Region,economic_region,VARCHAR(255),Publisher's economic region label. Group with province.
+Various Location,various_location,VARCHAR(80),Multiple-location flag as supplied.
+Employment Type,employment_type,VARCHAR(80),Full-time or part-time category.
+Employment Term,employment_term,VARCHAR(80),"Duration category such as permanent, seasonal, casual or contract."
+Employment Term Start Date,employment_term_start_date,DATE,Expected employment start date.
+Employment Term End Date,employment_term_end_date,DATE,Expected employment end date.
+Employment Term Oncall,employment_term_oncall,VARCHAR(80),Recorded work schedule indicator for oncall.
+Employment Term Overtime,employment_term_overtime,VARCHAR(80),Recorded work schedule indicator for overtime.
+Employment Term Day,employment_term_day,VARCHAR(80),Recorded work schedule indicator for day.
+Employment Term Evening,employment_term_evening,VARCHAR(80),Recorded work schedule indicator for evening.
+Employment Term Shift,employment_term_shift,VARCHAR(80),Recorded work schedule indicator for shift.
+Employment Term Weekend,employment_term_weekend,VARCHAR(80),Recorded work schedule indicator for weekend.
+Employment Term Night,employment_term_night,VARCHAR(80),Recorded work schedule indicator for night.
+Employment Term Telework,telework,VARCHAR(80),Telework flag on the release. Unknown and explicit No are kept separate.
+Employment Term Early,employment_term_early,VARCHAR(80),Recorded work schedule indicator for early.
+Employment Term Flex,employment_term_flex,VARCHAR(80),Recorded work schedule indicator for flex.
+Employment Term Morning,employment_term_morning,VARCHAR(80),Recorded work schedule indicator for morning.
+Employment Term TBD,employment_term_tbd,VARCHAR(80),Recorded work schedule indicator for tbd.
+Salary Condition Detail,salary_condition_detail,TEXT,Publisher's pay description retained for review.
+Salary Per,salary_per,VARCHAR(80),Period for the advertised pay range. Compare amounts within a period.
+Salary Minimum,salary_minimum,"DECIMAL(18,6)","Lower advertised pay amount, in dollars per stated pay period."
+Salary Maximum,salary_maximum,"DECIMAL(18,6)","Upper advertised pay amount, in dollars per stated pay period."
+Salary Condition Collective,salary_condition_collective,VARCHAR(80),Recorded pay or benefit indicator for collective.
+Salary Condition Bonus,salary_condition_bonus,VARCHAR(80),Recorded pay or benefit indicator for bonus.
+Salary Condition Disability,salary_condition_disability,VARCHAR(80),Recorded pay or benefit indicator for disability.
+Salary Condition Gratuity,salary_condition_gratuity,VARCHAR(80),Recorded pay or benefit indicator for gratuity.
+Salary Condition Medical,salary_condition_medical,VARCHAR(80),Recorded pay or benefit indicator for medical.
+Salary Condition Mileage,salary_condition_mileage,VARCHAR(80),Recorded pay or benefit indicator for mileage.
+Salary Condition Piecework,salary_condition_piecework,VARCHAR(80),Recorded pay or benefit indicator for piecework.
+Salary Condition Commission,salary_condition_commission,VARCHAR(80),Recorded pay or benefit indicator for commission.
+Salary Condition RESP,salary_condition_resp,VARCHAR(80),Recorded pay or benefit indicator for resp.
+Salary Condition Dental,salary_condition_dental,VARCHAR(80),Recorded pay or benefit indicator for dental.
+Salary Condition Group Insurance,salary_condition_group_insurance,VARCHAR(80),Recorded pay or benefit indicator for group insurance.
+Salary Condition Life Insurance,salary_condition_life_insurance,VARCHAR(80),Recorded pay or benefit indicator for life insurance.
+Salary Condition Pension,salary_condition_pension,VARCHAR(80),Recorded pay or benefit indicator for pension.
+Salary Condition RRSP,salary_condition_rrsp,VARCHAR(80),Recorded pay or benefit indicator for rrsp.
+Condition Vision Care,condition_vision_care,VARCHAR(80),Vision care indicator as recorded.
+Salary Condition Other Benefits,salary_condition_other_benefits,VARCHAR(80),Recorded pay or benefit indicator for other benefits.
+Commission PER,commission_per,VARCHAR(80),Basis for commission (e.g. per sale).
+Commission Type,commission_type,VARCHAR(80),"Commission type, such as amount or percentage."
+Hours Per,hours_per,VARCHAR(80),Period for the reported work hours.
+Hours Minimum,hours_minimum,"DECIMAL(18,6)",Minimum work hours in the stated hours period.
+Hours Maximum,hours_maximum,"DECIMAL(18,6)",Maximum work hours in that period.
+Work Hours,work_hours,VARCHAR(80),Publisher's work-hours flag.
+Work Hours From Time,work_hours_from_time,VARCHAR(80),Reported starting clock time.
+Work Hours To Time,work_hours_to_time,VARCHAR(80),Reported ending clock time.
+Derived,release_month,CHAR(7),Month in the catalogue resource title.
+Derived,source_record,INT UNSIGNED,"One-based logical data record within the raw release, excluding the header."
+Derived,posting_month,CHAR(7),Year and month derived from the parsed first posting date.
+Derived,channel,VARCHAR(80),"Direct or External, derived from External Indicator."
+Derived,pay_status,VARCHAR(80),"Comparable when both bounds are positive, ordered and tied to a known unit."
+Derived,pay_midpoint,"DECIMAL(18,6)","Arithmetic mean of the two bounds on comparable records, in the original unit."
+Derived,hourly_review,INT UNSIGNED,1 when a comparable hourly range starts below $5 or ends above $500. Sensitivity screen only.

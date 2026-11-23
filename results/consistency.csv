@@ -1,0 +1,4 @@
+posting_month,records,commission_type_known,commission_flag_known,commission_flag_yes,dental_flag_known,dental_flag_yes,hours_minimum_known,weekly_unit_count,reversed_hours,reversed_term_dates,weekend_yes,weekend_known,evening_yes,evening_known
+2026-08,53799,182,22800,0,22800,0,26270,21732,0,0,8889,22800,9076,22800
+2026-09,52368,172,22260,0,22260,0,25772,21347,0,0,8701,22260,8887,22260
+2026-10,59130,111,22113,0,22113,0,28208,21142,0,0,8682,22113,8746,22113

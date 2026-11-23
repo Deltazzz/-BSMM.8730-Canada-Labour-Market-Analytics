@@ -1,0 +1,184 @@
+{
+  "name": "Job Bank",
+  "compatibilityLevel": 1600,
+  "model": {
+    "culture": "en-CA",
+    "sourceQueryCulture": "en-CA",
+    "defaultPowerBIDataSourceVersion": "powerBI_V3",
+    "tables": [
+      {
+        "name": "Postings",
+        "columns": [
+          {
+            "name": "Snapshot ID",
+            "dataType": "string",
+            "sourceColumn": "Snapshot ID",
+            "summarizeBy": "none"
+          },
+          {
+            "name": "First posted",
+            "dataType": "string",
+            "sourceColumn": "First posted",
+            "summarizeBy": "none"
+          },
+          {
+            "name": "Month",
+            "dataType": "string",
+            "sourceColumn": "Month",
+            "summarizeBy": "none"
+          },
+          {
+            "name": "Source",
+            "dataType": "string",
+            "sourceColumn": "Source",
+            "summarizeBy": "none"
+          },
+          {
+            "name": "NOC",
+            "dataType": "string",
+            "sourceColumn": "NOC",
+            "summarizeBy": "none"
+          },
+          {
+            "name": "Occupation",
+            "dataType": "string",
+            "sourceColumn": "Occupation",
+            "summarizeBy": "none"
+          },
+          {
+            "name": "Province",
+            "dataType": "string",
+            "sourceColumn": "Province",
+            "summarizeBy": "none"
+          },
+          {
+            "name": "Economic region",
+            "dataType": "string",
+            "sourceColumn": "Economic region",
+            "summarizeBy": "none"
+          },
+          {
+            "name": "Education",
+            "dataType": "string",
+            "sourceColumn": "Education",
+            "summarizeBy": "none"
+          },
+          {
+            "name": "Experience",
+            "dataType": "string",
+            "sourceColumn": "Experience",
+            "summarizeBy": "none"
+          },
+          {
+            "name": "Employment type",
+            "dataType": "string",
+            "sourceColumn": "Employment type",
+            "summarizeBy": "none"
+          },
+          {
+            "name": "Employment term",
+            "dataType": "string",
+            "sourceColumn": "Employment term",
+            "summarizeBy": "none"
+          },
+          {
+            "name": "Telework flag",
+            "dataType": "string",
+            "sourceColumn": "Telework flag",
+            "summarizeBy": "none"
+          },
+          {
+            "name": "Weekend flag",
+            "dataType": "string",
+            "sourceColumn": "Weekend flag",
+            "summarizeBy": "none"
+          },
+          {
+            "name": "Pay period",
+            "dataType": "string",
+            "sourceColumn": "Pay period",
+            "summarizeBy": "none"
+          },
+          {
+            "name": "Pay status",
+            "dataType": "string",
+            "sourceColumn": "Pay status",
+            "summarizeBy": "none"
+          },
+          {
+            "name": "Vacancies",
+            "dataType": "int64",
+            "sourceColumn": "Vacancies",
+            "summarizeBy": "none"
+          },
+          {
+            "name": "Lower amount",
+            "dataType": "double",
+            "sourceColumn": "Lower amount",
+            "summarizeBy": "none"
+          },
+          {
+            "name": "Upper amount",
+            "dataType": "double",
+            "sourceColumn": "Upper amount",
+            "summarizeBy": "none"
+          },
+          {
+            "name": "Midpoint amount",
+            "dataType": "double",
+            "sourceColumn": "Midpoint amount",
+            "summarizeBy": "none"
+          }
+        ],
+        "measures": [
+          {
+            "name": "Location records",
+            "expression": "COUNTROWS('Postings')",
+            "formatString": "#,0"
+          },
+          {
+            "name": "Advertised openings",
+            "expression": "SUM('Postings'[Vacancies])",
+            "formatString": "#,0"
+          },
+          {
+            "name": "Hourly records",
+            "expression": "CALCULATE(COUNT('Postings'[Midpoint amount]), KEEPFILTERS('Postings'[Pay period] = \"Hour\"))",
+            "formatString": "#,0"
+          },
+          {
+            "name": "Median hourly lower",
+            "expression": "CALCULATE(MEDIAN('Postings'[Lower amount]), KEEPFILTERS('Postings'[Pay period] = \"Hour\"))",
+            "formatString": "$#,0.00"
+          },
+          {
+            "name": "Median hourly upper",
+            "expression": "CALCULATE(MEDIAN('Postings'[Upper amount]), KEEPFILTERS('Postings'[Pay period] = \"Hour\"))",
+            "formatString": "$#,0.00"
+          },
+          {
+            "name": "Median hourly midpoint",
+            "expression": "CALCULATE(MEDIAN('Postings'[Midpoint amount]), KEEPFILTERS('Postings'[Pay period] = \"Hour\"))",
+            "formatString": "$#,0.00"
+          }
+        ],
+        "partitions": [
+          {
+            "name": "Postings",
+            "mode": "import",
+            "source": {
+              "type": "m",
+              "expression": [
+                "let",
+                "    Source = MySQL.Database(\"127.0.0.1:3307\", \"jobbank\", [ReturnSingleDatabase=true]),",
+                "    Postings = Source{[Schema=\"jobbank\", Item=\"powerbi_postings\"]}[Data]",
+                "in",
+                "    Postings"
+              ]
+            }
+          }
+        ]
+      }
+    ]
+  }
+}

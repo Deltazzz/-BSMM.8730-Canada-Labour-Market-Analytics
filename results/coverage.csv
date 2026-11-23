@@ -1,0 +1,4 @@
+release_month,records,fields,first_date,last_date,distinct_dates,distinct_ids,duplicate_ids_within,ids_in_earlier_releases
+2026-08,53799,65,2026-08-01,2026-08-31,31,53799,0,0
+2026-09,52368,65,2026-09-01,2026-09-30,30,52368,0,0
+2026-10,59130,65,2026-10-01,2026-10-31,31,59130,0,0

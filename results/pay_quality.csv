@@ -1,0 +1,46 @@
+posting_month,channel,salary_per,pay_status,hourly_review,records
+2026-08,Direct,,Missing unit or bound,,1
+2026-08,Direct,Bi-weekly,Comparable,,70
+2026-08,Direct,Bi-weekly,Invalid bounds,,1
+2026-08,Direct,Day,Comparable,,32
+2026-08,Direct,Hour,Comparable,0,21160
+2026-08,Direct,Month,Comparable,,108
+2026-08,Direct,Week,Comparable,,65
+2026-08,Direct,Year,Comparable,,1363
+2026-08,External,,Missing unit or bound,,76
+2026-08,External,Bi-weekly,Comparable,,85
+2026-08,External,Day,Comparable,,217
+2026-08,External,Hour,Comparable,0,24418
+2026-08,External,Hour,Comparable,1,182
+2026-08,External,Month,Comparable,,254
+2026-08,External,Week,Comparable,,91
+2026-08,External,Year,Comparable,,5676
+2026-09,Direct,Bi-weekly,Comparable,,70
+2026-09,Direct,Day,Comparable,,19
+2026-09,Direct,Hour,Comparable,0,20672
+2026-09,Direct,Month,Comparable,,71
+2026-09,Direct,Week,Comparable,,118
+2026-09,Direct,Year,Comparable,,1310
+2026-09,External,,Missing unit or bound,,120
+2026-09,External,Bi-weekly,Comparable,,107
+2026-09,External,Day,Comparable,,225
+2026-09,External,Hour,Comparable,0,22335
+2026-09,External,Hour,Comparable,1,163
+2026-09,External,Month,Comparable,,226
+2026-09,External,Week,Comparable,,96
+2026-09,External,Year,Comparable,,6836
+2026-10,Direct,,Missing unit or bound,,1
+2026-10,Direct,Bi-weekly,Comparable,,68
+2026-10,Direct,Day,Comparable,,18
+2026-10,Direct,Hour,Comparable,0,20488
+2026-10,Direct,Month,Comparable,,74
+2026-10,Direct,Week,Comparable,,89
+2026-10,Direct,Year,Comparable,,1375
+2026-10,External,,Missing unit or bound,,97
+2026-10,External,Bi-weekly,Comparable,,99
+2026-10,External,Day,Comparable,,194
+2026-10,External,Hour,Comparable,0,26267
+2026-10,External,Hour,Comparable,1,114
+2026-10,External,Month,Comparable,,215
+2026-10,External,Week,Comparable,,98
+2026-10,External,Year,Comparable,,9933

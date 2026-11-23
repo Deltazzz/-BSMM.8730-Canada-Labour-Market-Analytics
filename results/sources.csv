@@ -1,0 +1,4 @@
+release_month,filename,url,sha256,bytes
+2026-08,job-bank-open-data-all-job-postings-en-aug2026.csv,https://open.canada.ca/data/dataset/ea639e28-c0fc-48bf-b5dd-b8899bd43072/resource/07546deb-70f5-4638-b34b-7c4321264972/download/job-bank-open-data-all-job-postings-en-aug2026.csv,f2ad4cfa3eb5fd9fb9b1aaf846f8dfdb4f83f4fca221db4b819702053242a75f,47922744
+2026-09,job-bank-open-data-all-job-postings-en-sept2026.csv,https://open.canada.ca/data/dataset/ea639e28-c0fc-48bf-b5dd-b8899bd43072/resource/03523cbf-a005-40ee-81ad-aca5bb74cf03/download/job-bank-open-data-all-job-postings-en-sept2026.csv,0952ffeea10eb20e9b794c1e695140cfb93529e58a88b0382d9d7b88f5eb548c,46462508
+2026-10,job-bank-open-data-all-job-postings-en-oct2026.csv,https://open.canada.ca/data/dataset/ea639e28-c0fc-48bf-b5dd-b8899bd43072/resource/271cca4e-ddd6-44b1-a6a1-c105f6a2afa2/download/job-bank-open-data-all-job-postings-en-oct2026.csv,07751bcfd66148a419f96d354a2c595d2b7898d893c1b2604adfd47b0b42244f,52295194
