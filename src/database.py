@@ -42,6 +42,11 @@ def create_schema(cursor, columns, dtype, analysis):
     cursor.execute("""CREATE TABLE IF NOT EXISTS releases (
         release_month CHAR(7) PRIMARY KEY, filename VARCHAR(255), url TEXT, sha256 CHAR(64),
         bytes BIGINT UNSIGNED) ENGINE=InnoDB CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_bin""")
+    execute_file(cursor, analysis.with_name("relational.sql"))
+    execute_file(cursor, analysis)
+
+
+def execute_file(cursor, analysis):
     for statement in analysis.read_text(encoding="utf-8").split(";"):
         if statement.strip():
             cursor.execute(statement)

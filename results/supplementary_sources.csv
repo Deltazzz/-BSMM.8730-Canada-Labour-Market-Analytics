@@ -1,0 +1,3 @@
+source,status,url,sha256,retrieved_at,processed_at
+StatCan,WDS unavailable (HTTPError); published-table fallback,https://www150.statcan.gc.ca/t1/tbl1/en/tv.action?pid=1410028701&request_locale=en,b7f5169365b2b59af08f7c7ab2a1c00dc907afdd7e326d480b03f8987c59586e,,2026-11-23T10:12:21.750786+00:00
+Job Bank occupation profiles,Skipped automated retrieval under published terms,https://www.jobbank.gc.ca/termsofuse-seeker.xhtml,,,2026-11-23T10:12:21.750786+00:00

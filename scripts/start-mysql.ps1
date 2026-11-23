@@ -61,7 +61,7 @@ try {
                 }
             }
             $statements += 'CREATE DATABASE IF NOT EXISTS jobbank CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_bin;'
-            $statements += "GRANT SELECT, INSERT, DELETE, CREATE, DROP, CREATE VIEW, SHOW VIEW ON jobbank.* TO 'jobbank_loader'@'localhost';"
+            $statements += "GRANT SELECT, INSERT, DELETE, CREATE, DROP, REFERENCES, CREATE VIEW, SHOW VIEW ON jobbank.* TO 'jobbank_loader'@'localhost';"
             [System.IO.File]::WriteAllLines($bootstrap,$statements,[Text.UTF8Encoding]::new($false))
         }
     }

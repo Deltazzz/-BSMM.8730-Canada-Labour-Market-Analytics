@@ -147,25 +147,34 @@ SELECT posting_month,COUNT(*) AS records,COUNT(commission_type) AS commission_ty
 FROM postings GROUP BY posting_month ORDER BY posting_month;
 
 CREATE OR REPLACE SQL SECURITY DEFINER VIEW powerbi_postings AS
-SELECT
-    COALESCE(snapshot_id, 'Not recorded') AS `Snapshot ID`,
-    COALESCE(DATE_FORMAT(first_posting_date, '%Y-%m-%d'), 'Not recorded') AS `First posted`,
-    COALESCE(posting_month, 'Not recorded') AS `Month`,
-    COALESCE(channel, 'Not recorded') AS `Source`,
-    COALESCE(noc, 'Not recorded') AS `NOC`,
-    COALESCE(occupation, 'Not recorded') AS `Occupation`,
-    COALESCE(province, 'Not recorded') AS `Province`,
-    COALESCE(economic_region, 'Not recorded') AS `Economic region`,
-    COALESCE(education, 'Not recorded') AS `Education`,
-    COALESCE(experience, 'Not recorded') AS `Experience`,
-    COALESCE(employment_type, 'Not recorded') AS `Employment type`,
-    COALESCE(employment_term, 'Not recorded') AS `Employment term`,
-    COALESCE(telework, 'Not recorded') AS `Telework flag`,
-    COALESCE(employment_term_weekend, 'Not recorded') AS `Weekend flag`,
-    COALESCE(salary_per, 'Not recorded') AS `Pay period`,
-    COALESCE(pay_status, 'Not recorded') AS `Pay status`,
-    vacancy_count AS `Vacancies`,
-    case when pay_status='Comparable' then salary_minimum end AS `Lower amount`,
-    case when pay_status='Comparable' then salary_maximum end AS `Upper amount`,
-    pay_midpoint AS `Midpoint amount`
-FROM postings;
+SELECT j.posting_id AS `Snapshot ID`, DATE_FORMAT(p.first_posting_date,'%Y-%m-%d') AS `First posted`,
+ t.period_id AS Month, p.channel AS Source, COALESCE(o.noc_code,'Not recorded') AS NOC,
+ COALESCE(o.occupation_title,'Not recorded') AS Occupation, COALESCE(l.province,'Not recorded') AS Province,
+ COALESCE(l.economic_region,'Not recorded') AS `Economic region`, COALESCE(p.education,'Not recorded') AS Education,
+ COALESCE(p.experience,'Not recorded') AS Experience, COALESCE(j.employment_type,'Not recorded') AS `Employment type`,
+ COALESCE(p.employment_term,'Not recorded') AS `Employment term`, COALESCE(p.telework,'Not recorded') AS `Telework flag`,
+ COALESCE(p.employment_term_weekend,'Not recorded') AS `Weekend flag`, COALESCE(j.salary_per,'Not recorded') AS `Pay period`,
+ p.pay_status AS `Pay status`, j.vacancies AS Vacancies,
+ CASE WHEN p.pay_status='Comparable' THEN j.salary_min END AS `Lower amount`,
+ CASE WHEN p.pay_status='Comparable' THEN j.salary_max END AS `Upper amount`, p.pay_midpoint AS `Midpoint amount`,
+ COALESCE(l.city,'Not recorded') AS City,
+ CASE WHEN l.city IS NULL THEN 'Not recorded' ELSE CONCAT(l.city,', ',l.province) END AS `City and province`,
+ COALESCE(CONCAT(o.occupation_title,' (',o.noc_code,')'),'Not recorded') AS `Occupation and NOC`,
+ CASE WHEN j.weekly_hours_min IS NULL THEN 'Not recorded'
+      WHEN (j.weekly_hours_min+j.weekly_hours_max)/2 < 20 THEN 'Under 20'
+      WHEN (j.weekly_hours_min+j.weekly_hours_max)/2 < 30 THEN '20 to <30'
+      WHEN (j.weekly_hours_min+j.weekly_hours_max)/2 < 40 THEN '30 to <40'
+      WHEN (j.weekly_hours_min+j.weekly_hours_max)/2 <= 40 THEN '40'
+      ELSE 'Over 40' END AS `Weekly hours band`,
+ CASE WHEN j.weekly_hours_min IS NULL THEN 6
+      WHEN (j.weekly_hours_min+j.weekly_hours_max)/2 < 20 THEN 1
+      WHEN (j.weekly_hours_min+j.weekly_hours_max)/2 < 30 THEN 2
+      WHEN (j.weekly_hours_min+j.weekly_hours_max)/2 < 40 THEN 3
+      WHEN (j.weekly_hours_min+j.weekly_hours_max)/2 <= 40 THEN 4 ELSE 5 END AS `Hours sort`,
+ COALESCE(p.salary_condition_dental,'Not recorded') AS `Dental flag`,
+ COALESCE(p.salary_condition_medical,'Not recorded') AS `Medical flag`,
+ COALESCE(p.employment_term_evening,'Not recorded') AS `Evening flag`,
+ t.period_date AS `Period date`
+FROM JobPosting j JOIN postings p ON p.snapshot_id=j.posting_id
+LEFT JOIN Occupation o ON o.occupation_id=j.occupation_id
+JOIN Location l ON l.location_id=j.location_id JOIN TimePeriod t ON t.period_id=j.period_id;

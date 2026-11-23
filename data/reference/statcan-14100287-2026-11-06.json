@@ -1,0 +1,12 @@
+{
+  "table": "14-10-0287-01",
+  "vector": 2062815,
+  "source": "https://www150.statcan.gc.ca/t1/tbl1/en/tv.action?pid=1410028701&request_locale=en",
+  "vintage": "2026-11-06",
+  "format": "Project transcription of the published table, unemployment rate, Canada, age 15+, total gender, seasonally adjusted, percent",
+  "observations": {
+    "2026-08": "6.4",
+    "2026-09": "6.5",
+    "2026-10": "6.7"
+  }
+}

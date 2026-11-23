@@ -9,6 +9,7 @@ from statistics import median
 from urllib.request import urlopen
 
 from database import connect, HOST, PORT, DATABASE
+from powerbi import FILTERS, PAGES, DETAIL, key
 from pipeline import ROOT, CLEAN, RESULTS, acquire
 
 def require(test, message):
@@ -21,18 +22,19 @@ def rows(path):
 
 def load_report():
     proj = ROOT/"powerbi"
-    files = [p for p in sorted(proj.rglob("*")) if p.is_file() and p.suffix in (".json",".pbip",".pbism",".pbir")]
+    files = [p for p in sorted(proj.rglob("*")) if p.is_file() and not {".pbi","StaticResources"} & set(p.parts) and p.suffix in (".json",".pbip",".pbism",".pbir")]
     definitions = [(p,json.loads(p.read_text(encoding="utf-8"))) for p in files]
     model = json.loads((proj/"Job Bank.SemanticModel"/"model.bim").read_text(encoding="utf-8"))
     table = model["model"]["tables"][0]
-    cols = {c["name"] for c in table["columns"]}
+    cols = {(t["name"],c["name"]) for t in model["model"]["tables"] for c in t["columns"]}
     measures = {c["name"] for c in table["measures"]}
     for p,d in definitions:
         if "visual" in d:
             for group in d["visual"].get("query",{}).get("queryState",{}).values():
                 for ref in group["projections"]:
                     typ,definition=next(iter(ref["field"].items()))
-                    require(definition["Property"] in (measures if typ=="Measure" else cols),f"Broken binding in {p}")
+                    entity = definition["Expression"]["SourceRef"]["Entity"]
+                    require(definition["Property"] in measures if typ=="Measure" else (entity,definition["Property"]) in cols,f"Broken binding in {p}")
             pos=d["position"]
             require(pos["x"]>=0 and pos["y"]>=0 and pos["x"]+pos["width"]<=1280 and pos["y"]+pos["height"]<=720,f"Off-canvas visual {p}")
     code = table["partitions"][0]["source"]["expression"]
@@ -40,7 +42,25 @@ def load_report():
     require('MySQL.Database(' in source and f'"{HOST}:{PORT}"' in source and f'Schema="{DATABASE}"' in source
             and 'Item="powerbi_postings"' in source, "Power BI source differs from the configured MySQL view")
     require(table["partitions"][0]["mode"] == "import", "Unexpected Power BI partition mode")
-    return [c["name"] for c in table["columns"]], definitions
+    order = next(d for p,d in definitions if p.name=="pages.json")
+    require(order["pageOrder"] == [key(n) for n in PAGES+[DETAIL]], "Unexpected D4.2 navigation order")
+    expected = {
+        "Demand Over Time":{"lineChart", "clusteredBarChart","card"},
+        "Geographic Distribution":{"shapeMap","clusteredBarChart"},
+        "Qualifications":{"barChart","clusteredBarChart","tableEx"},
+        "Compensation":{"card","clusteredBarChart","tableEx"},
+        "Work Conditions":{"donutChart","clusteredColumnChart","barChart"}}
+    for name,types in expected.items():
+        visuals=[d["visual"] for p,d in definitions if "visual" in d and p.parents[2].name==key(name)]
+        present={v["visualType"] for v in visuals}
+        require(types | {"actionButton","textbox"} <= present, "Missing D4.2 visual on "+name)
+        destinations = {link["properties"]["navigationSection"]["expr"]["Literal"]["Value"].strip("'")
+                        for v in visuals for link in v.get("visualContainerObjects", {}).get("visualLink", [])
+                        if "navigationSection" in link["properties"]}
+        require(destinations == {key(target) for target in PAGES}, "Missing page link on "+name)
+        synced={v["syncGroup"]["groupName"] for v in visuals if v["visualType"]=="slicer"}
+        require(synced=={"D42 "+n for n,_ in FILTERS},"Unsynced filters on "+name)
+    return [c["sourceColumn"] for c in table["columns"] if "sourceColumn" in c], definitions
 
 
 def validate_schemas(definitions):

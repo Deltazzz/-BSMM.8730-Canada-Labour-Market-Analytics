@@ -7,7 +7,7 @@ This BSMM.8730 team project uses Python, MySQL and Power BI to examine newly fir
 | Deliverable | Contents |
 |---|---|
 | [Final report](reports/D5%20Final%20report.pdf) | Six pages of evidence, denominators, sensitivity analysis and limitations |
-| [MySQL-connected Power BI project](powerbi/Job%20Bank.pbip) · [populated snapshot](powerbi/Job%20Bank.pbix) | Three reporting pages and an occupation drill-through page. Use the PBIP to refresh from MySQL. The PBIX contains the earlier embedded snapshot. |
+| [Power BI dashboard](powerbi/Job%20Bank.pbix) · [editable project](powerbi/Job%20Bank.pbip) | Six visible pages and an occupation drill-through page. The PBIX opens with the August–October data loaded. Both versions refresh from MySQL. |
 | [Final presentation](reports/D6%20Presentation.pdf) | Eight slides for presenting the findings |
 | [Midterm report](reports/D3%20Midterm%20report.pdf) | Retrospective two-release checkpoint |
 | [Field dictionary](data/clean/data_dictionary.csv) | All 65 source fields and seven derived fields, with types and definitions |
@@ -36,12 +36,13 @@ For optional Power BI JSON schema verification, install `jsonschema==4.25.1` in 
 
 ## Explore the report
 
-Open the PBIP with its sibling report and semantic-model folders in place. Select **Home → Refresh**. If prompted, choose **Database** authentication for server `127.0.0.1:3307` and database `jobbank`. Enter `jobbank_reader`, run `.\scripts\copy-reader-password.ps1` in PowerShell and paste the password into Power BI. After the refresh, use **Save As → Power BI file (.pbix)** to save a populated MySQL-connected copy. Select month, source, province or occupation with the slicers on each page.
+Open the PBIX in Power BI Desktop to explore the loaded data. To work from the PBIP, keep its sibling report and semantic-model folders in place. To load the latest data in your local MySQL database, start the server and select **Home → Refresh** in either version. If prompted, choose **Database** authentication for server `127.0.0.1:3307` and database `jobbank`. Enter `jobbank_reader`, run `.\scripts\copy-reader-password.ps1` in PowerShell and paste the password into Power BI. The occupation, province, city, time period and education slicers carry across the six pages.
 
-- **Demand and geography** compares records and openings. Right-click an occupation in the table and choose **Drill through → Occupation detail**. The detail page has a Back button.
-- **Pay and qualifications** shows the count of eligible hourly ranges and three independent medians. Select **Direct** to restrict education and experience to the source that supplies them.
-- **Work arrangements** shows employment type, duration, telework and weekend flags. “Not recorded” identifies missing information.
-- To check a filter, select October, Ontario and Cooks on the pay page. The corresponding row should contain 547 hourly records and a $20.00 median midpoint.
+- **Overview** summarizes the selected records. Right-click an occupation in the summary table and choose **Drill through → Occupation detail**.
+- **Demand Over Time** compares monthly records and advertised openings and ranks occupations by posting locations. To check a filter, select **2026-10** and **Ontario**. Retail salespersons and visual merchandisers should lead with 1,668 records, followed by Cooks with 556.
+- **Geographic Distribution** maps postings by province or territory and ranks cities within the selection.
+- **Qualifications** shows reported education and experience. **Compensation** compares hourly pay, including average midpoints for the ten occupations with the most eligible hourly records.
+- **Work Conditions** shows employment type, weekly hours, work arrangements and benefits.
 
 ## Counting and cleaning rules
 

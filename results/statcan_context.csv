@@ -1,0 +1,4 @@
+period,geography,unit,unemployment_rate,source_url
+2026-08,Canada,percent,6.4,https://www150.statcan.gc.ca/t1/tbl1/en/tv.action?pid=1410028701&request_locale=en
+2026-09,Canada,percent,6.5,https://www150.statcan.gc.ca/t1/tbl1/en/tv.action?pid=1410028701&request_locale=en
+2026-10,Canada,percent,6.7,https://www150.statcan.gc.ca/t1/tbl1/en/tv.action?pid=1410028701&request_locale=en

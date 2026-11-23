@@ -1,155 +1,184 @@
-"""Build the Power BI report with a native MySQL import partition."""
+"""Generate the D4.2 wireframes (figures 1–5) as a native Power BI project."""
 import hashlib
 import json
 from pathlib import Path
 
 from database import HOST, PORT, DATABASE
+from dashboard_model import COLUMNS, MEASURES, build_model
 
 ROOT = Path(__file__).resolve().parents[1]
 DEST = ROOT / "powerbi"
 REPORT = DEST / "Job Bank.Report"
 MODEL = DEST / "Job Bank.SemanticModel"
 DEF = REPORT / "definition"
-SCHEMA = "https://developer.microsoft.com/json-schemas/fabric/"
+BASE = "https://developer.microsoft.com/json-schemas/fabric/"
 RS = "item/report/definition/"
-# The source view exposes these labels and model types.
-COLUMNS = [
-    ('Snapshot ID', 'string'),
-    ('First posted', 'string'),
-    ('Month', 'string'),
-    ('Source', 'string'),
-    ('NOC', 'string'),
-    ('Occupation', 'string'),
-    ('Province', 'string'),
-    ('Economic region', 'string'),
-    ('Education', 'string'),
-    ('Experience', 'string'),
-    ('Employment type', 'string'),
-    ('Employment term', 'string'),
-    ('Telework flag', 'string'),
-    ('Weekend flag', 'string'),
-    ('Pay period', 'string'),
-    ('Pay status', 'string'),
-    ('Vacancies', 'int64'),
-    ('Lower amount', 'double'),
-    ('Upper amount', 'double'),
-    ('Midpoint amount', 'double'),
-]
-MEASURES = {
-    "Location records": ("COUNTROWS('Postings')", "#,0"),
-    "Advertised openings": ("SUM('Postings'[Vacancies])", "#,0"),
-    "Hourly records": ("CALCULATE(COUNT('Postings'[Midpoint amount]), KEEPFILTERS('Postings'[Pay period] = \"Hour\"))", "#,0"),
-    "Median hourly lower": ("CALCULATE(MEDIAN('Postings'[Lower amount]), KEEPFILTERS('Postings'[Pay period] = \"Hour\"))", "$#,0.00"),
-    "Median hourly upper": ("CALCULATE(MEDIAN('Postings'[Upper amount]), KEEPFILTERS('Postings'[Pay period] = \"Hour\"))", "$#,0.00"),
-    "Median hourly midpoint": ("CALCULATE(MEDIAN('Postings'[Midpoint amount]), KEEPFILTERS('Postings'[Pay period] = \"Hour\"))", "$#,0.00"),
-}
-
-def write(path, obj):
-    path.parent.mkdir(exist_ok=True,parents=True)
-    path.write_text(json.dumps(obj, ensure_ascii=False, indent=2) + "\n",encoding="utf-8")
-
-def filedef(path, schema, **obj):
-    write(path, {"$schema":SCHEMA+schema+"/schema.json", **obj})
-
+FILTERS = [("Occupation and NOC","Occupation / NOC"),("Province","Province"),("City","City"),
+           ("Month","Time period"),("Education","Education level")]
+PAGES = ["Overview","Demand Over Time","Geographic Distribution","Qualifications","Compensation","Work Conditions"]
+DETAIL = "Occupation detail"
 def key(s):
     return hashlib.sha256(s.encode()).hexdigest()[:20]
-
-def make_model():
-    def m_string(value):
-        return '"' + value.replace('#', '#(#)').replace('"', '""') + '"'
-    server = m_string(f"{HOST}:{PORT}")
-    database = m_string(DATABASE)
-    m = [
-        "let",
-        f"    Source = MySQL.Database({server}, {database}, [ReturnSingleDatabase=true]),",
-        f'    Postings = Source{{[Schema={database}, Item="powerbi_postings"]}}[Data]',
-        "in",
-        "    Postings",
-    ]
-    table = {"name":"Postings","columns":[{"name":label,"dataType":ty,"sourceColumn":label,"summarizeBy":"none"}
-                                        for label,ty in COLUMNS],
-             "measures":[{"name":name,"expression":expr,"formatString":fmt} for name,(expr,fmt) in MEASURES.items()],
-             "partitions":[{"name":"Postings","mode":"import","source":{"type":"m","expression":m}}]}
-    write(MODEL/"model.bim",{"name":"Job Bank","compatibilityLevel":1600,"model":{
-        "culture":"en-CA","sourceQueryCulture":"en-CA","defaultPowerBIDataSourceVersion":"powerBI_V3","tables":[table]}})
-    filedef(MODEL/"definition.pbism","item/semanticModel/definitionProperties/1.0.0",version="1.0",settings={})
-
+def write(path,obj):
+    path.parent.mkdir(parents=True,exist_ok=True)
+    path.write_text(json.dumps(obj,ensure_ascii=False,indent=2)+"\n",encoding="utf8")
+def schema(path, kind, **data):
+    write(path,{"$schema":BASE+kind+"/schema.json",**data})
 def literal(s):
     return {"expr":{"Literal":{"Value":s}}}
+def string(s):
+    return literal("'"+s.replace("'","''")+"'")
+def color(s):
+    return {"solid":{"color":string(s)}}
+def prop(**kw):
+    return [{"properties":kw}]
+def field(n):
+    entity="Indicators" if n=="Indicator" else "Postings"
+    if n not in MEASURES and n not in COLUMNS and n not in ("Indicator","Map province"):
+        raise KeyError(n)
+    return {"Measure" if n in MEASURES else "Column":{"Expression":{"SourceRef":{"Entity":entity}},"Property":n}}
+def projection(n):
+    f=field(n)
+    entity=next(iter(f.values()))["Expression"]["SourceRef"]["Entity"]
+    return {"field":f,"queryRef":f"{entity}.{n}","nativeQueryRef":n}
+def visual(page,title,typ,xy,roles=None,sort=None,objs=None,container=None,sync=None,required_measure=None):
+    x,y,w,h=xy
+    vid=key(page.name+title)
+    config={"title":prop(show=literal("true"),text=string(title),fontColor=color("#243950"),
+                         fontSize=literal("11D"),bold=literal("true")),
+            "background":prop(show=literal("true"),color=color("#FFFFFF"),transparency=literal("0D")),
+            "border":prop(show=literal("true"),color=color("#D5DEE8"),radius=literal("7D"))}
+    config.update(container or {})
+    vis={"visualType":typ,"visualContainerObjects":config}
+    if roles:
+        state={role:{"projections":[projection(n) for n in names]} for role,names in roles.items()}
+        vis["query"]={"queryState":state}
+        if sort:
+            vis["query"]["sortDefinition"]={"sort":[{"field":field(sort[0]),"direction":sort[1]}]}
+    if objs: vis["objects"]=objs
+    if sync: vis["syncGroup"]={"groupName":"D42 "+sync,"fieldChanges":True,"filterChanges":True}
+    extra={}
+    if required_measure:
+        measure={"Measure":{"Expression":{"SourceRef":{"Source":"p"}},"Property":required_measure}}
+        extra["filterConfig"]={"filters":[{
+            "name":"Filter"+key(title+" ranked values"),"field":field(required_measure),"type":"Advanced",
+            "filter":{"Version":2,"From":[{"Name":"p","Entity":"Postings","Type":0}],
+                      "Where":[{"Condition":{"Not":{"Expression":{"Comparison":{
+                          "ComparisonKind":0,"Left":measure,"Right":{"Literal":{"Value":"null"}}}}}}}]}
+        }]}
+    schema(page/"visuals"/vid/"visual.json",RS+"visualContainer/2.1.0",name=vid,
+           position={"x":x,"y":y,"width":w,"height":h,"z":y*10+x,"tabOrder":y*10+x},visual=vis,**extra)
 
-def field(name):
-    if name not in MEASURES and name not in [c[0] for c in COLUMNS]:
-        raise KeyError(name)
-    return {"Measure" if name in MEASURES else "Column":{"Expression":{"SourceRef":{"Entity":"Postings"}},"Property":name}}
-
-def project(name):
-    return {"field":field(name),"queryRef":"Postings."+name,"nativeQueryRef":name}
-
-def visual(page, title, typ, roles, pos, sort=None):
-    vid = key(page.name + title)
-    container = {"title":[{"properties":{"show":literal("true"),"text":literal("'"+title.replace("'","''")+"'")}}]}
-    state = {role:{"projections":[project(n) for n in refs]} for role, refs in roles.items()}
-    vis = {"visualType":typ,"query":{"queryState":state},"visualContainerObjects":container}
-    if sort:
-        vis["query"]["sortDefinition"] = {"sort":[{"field":field(sort[0]),"direction":sort[1]}]}
-    if typ == "slicer":
-        vis["objects"]={"data":[{"properties":{"mode":literal("'Dropdown'")}}]}
-    x,y,w,h = pos
-    filedef(page/"visuals"/vid/"visual.json",RS+"visualContainer/2.1.0",name=vid,
-            position={"x":x,"y":y,"z":y*10+x,"width":w,"height":h,"tabOrder":y*10+x},visual=vis)
-
-def make_report():
-    filedef(DEST/"Job Bank.pbip","pbip/pbipProperties/1.0.0",version="1.0",artifacts=[{"report":{"path":REPORT.name}}],
-            settings={"enableAutoRecovery":True})
-    filedef(REPORT/"definition.pbir","item/report/definitionProperties/2.0.0",version="4.0",datasetReference={"byPath":{"path":"../"+MODEL.name}})
-    filedef(DEF/"version.json",RS+"versionMetadata/1.0.0",version="2.0.0")
-    theme={"name":"CY24SU10","type":"SharedResources","reportVersionAtImport":{"visual":"2.1.0","report":"3.0.0","page":"2.0.0"}}
-    filedef(DEF/"report.json",RS+"report/3.0.0",themeCollection={"baseTheme":theme})
-    specs=[
-        ("Demand and geography",["Month","Source","Province"],[
-            ("Records by first posting month","clusteredColumnChart",{"Category":["Month"],"Series":["Source"],"Y":["Location records"]},(14,100,614,290),("Month","Ascending")),
-            ("Records by listed province or territory","barChart",{"Category":["Province"],"Y":["Location records"]},(645,100,620,290),("Location records","Descending")),
-            ("Occupations — right-click to explore","tableEx",{"Values":["Occupation","NOC","Location records","Advertised openings"]},(14,405,614,300),("Location records","Descending")),
-            ("Economic regions","tableEx",{"Values":["Province","Economic region","Location records","Advertised openings"]},(645,405,620,300),("Location records","Descending"))]),
-        ("Pay and qualifications",["Month","Province","Occupation","Source"],[
-            ("Hourly pay by occupation and province","tableEx",{"Values":["Occupation","Province","Hourly records","Median hourly lower","Median hourly upper","Median hourly midpoint"]},(14,100,1250,265),("Hourly records","Descending")),
-            ("Education in listed records","barChart",{"Category":["Education"],"Y":["Location records"]},(14,387,608,315),("Location records","Descending")),
-            ("Experience in listed records","barChart",{"Category":["Experience"],"Y":["Location records"]},(640,387,624,315),("Location records","Descending"))]),
-        ("Work arrangements",["Month","Province","Occupation","Source"],[
-            ("Employment type","barChart",{"Category":["Employment type"],"Y":["Location records"]},(14,100,605,282),("Location records","Descending")),
-            ("Employment duration","barChart",{"Category":["Employment term"],"Y":["Location records"]},(642,100,622,282),("Location records","Descending")),
-            ("Telework flag by source","tableEx",{"Values":["Source","Telework flag","Location records"]},(14,398,605,304),None),
-            ("Weekend work by source","tableEx",{"Values":["Source","Weekend flag","Location records"]},(642,398,622,304),None)]),
-        ("Occupation detail",["Month","Province","Source"],[
-            ("Selected occupation by month","tableEx",{"Values":["Occupation","Month","Location records","Advertised openings","Hourly records","Median hourly midpoint"]},(14,100,1250,265),("Month","Ascending")),
-            ("Education and experience together","tableEx",{"Values":["Education","Experience","Location records"]},(14,382,620,320),("Location records","Descending")),
-            ("Listed locations","tableEx",{"Values":["Province","Economic region","Location records"]},(648,382,616,320),("Location records","Descending"))])]
-    pages=[]
-    for title,slicers,visuals in specs:
-        pid=key(title)
-        pages.append(pid)
-        page=DEF/"pages"/pid
+def heading(page,name):
+    text={"general":prop(paragraphs=[
+        {"textRuns":[{"value":"CANADA LABOUR MARKET ANALYTICS","textStyle":{"fontSize":"17pt","fontWeight":"bold","color":"#243950"}}]},
+        {"textRuns":[{"value":name,"textStyle":{"fontSize":"14pt","fontWeight":"bold","color":"#526E89"}}]}])}
+    hide={"title":prop(show=literal("false")),"background":prop(show=literal("false")),"border":prop(show=literal("false"))}
+    visual(page,"Report heading","textbox",(34,9,800,70),objs=text,container=hide)
+    for i,(n,label) in enumerate(FILTERS):
+        visual(page,label,"slicer",(34+i*243,89,242,72),{"Values":[n]},
+               objs={"data":prop(mode=string("Dropdown")),"header":prop(show=literal("false"))},sync=n)
+    labels = ("Overview","Demand","Geography","Qualifications","Compensation","Conditions")
+    for i,(target,label) in enumerate(zip(PAGES,labels)):
+        active = target == name
+        button = {"text":[{"properties":{"show":literal("true")}},
+                          {"selector":{"id":"default"},"properties":{
+                              "text":string(label),"fontColor":color("#243950"),"bold":literal("true" if active else "false")}}]}
+        frame = {"title":prop(show=literal("false")),
+                 "background":prop(show=literal("true"),color=color("#DFE8EF" if active else "#FFFFFF"),transparency=literal("0D")),
+                 "visualLink":prop(show=literal("true"),type=string("PageNavigation"),navigationSection=string(key(target)))}
+        # Reuse the previous navigator container for the first link when upgrading an existing report.
+        visual(page,"Page navigation" if i==0 else f"Navigate to {target}", "actionButton",
+               (34+i*202,665,202,45),objs=button,container=frame)
+def card(page,title,n,x):
+    visual(page,title,"card",(x,174,394,90),{"Values":[n]},objs={"categoryLabels":prop(show=literal("false")),
+           "labels":prop(labelDisplayUnits=literal("1D"),fontSize=literal("23D"),color=color("#344F69"))})
+def bar(page,title,cat,metric,pos,tips=(),kind="clusteredBarChart",ranked=False):
+    roles={"Category":[cat],"Y":[metric]}
+    if tips: roles["Tooltips"]=list(tips)
+    visual(page,title,kind,pos,roles,(metric,"Descending"),required_measure=metric if ranked else None)
+def all_pages():
+    for name in PAGES+[DETAIL]:
+        page=DEF/"pages"/key(name)
         extra={}
-        if title=="Occupation detail":
-            ref="Filter"+hashlib.sha256(title.encode()).hexdigest()[:24]
-            extra={"visibility":"HiddenInViewMode","filterConfig":{"filters":[{"name":ref,"field":field("Occupation"),"type":"Categorical","howCreated":"Drillthrough"}]},
-                   "pageBinding":{"name":"Pod","type":"Drillthrough","parameters":[{"name":"Param_"+ref,"boundFilter":ref,"fieldExpr":field("Occupation")}]}}
-        filedef(page/"page.json",RS+"page/2.0.0",name=pid,displayName=title,displayOption="FitToPage",height=720,width=1280,**extra)
-        for i,name in enumerate(slicers):
-            width=(1090 if title=="Occupation detail" else 1250)//len(slicers)
-            visual(page,name,"slicer",{"Values":[name]},(14+i*width,8,width-12,80))
-        for t,typ,roles,pos,sort in visuals:
-            visual(page,t,typ,roles,pos,sort)
-        if title=="Occupation detail":
-            vid=key("Return from occupation detail")
-            button={"visualType":"actionButton","objects":{"text":[{"properties":{"show":literal("true")}},
-                    {"selector":{"id":"default"},"properties":{"text":literal("'Back to results'")}}]},
-                    "visualContainerObjects":{"visualLink":[{"properties":{"show":literal("true"),"type":literal("'Back'")}}]}}
-            filedef(page/"visuals"/vid/"visual.json",RS+"visualContainer/2.1.0",name=vid,
-                    position={"x":1110,"y":16,"width":145,"height":52,"z":2000,"tabOrder":2000},visual=button)
-    filedef(DEF/"pages/pages.json",RS+"pagesMetadata/1.0.0",pageOrder=pages,activePageName=pages[0])
-
+        if name==DETAIL:
+            fid="Filter"+key("Occupation detail filter")
+            extra={"visibility":"HiddenInViewMode","filterConfig":{"filters":[{"name":fid,"field":field("Occupation and NOC"),
+                    "type":"Categorical","howCreated":"Drillthrough"}]},"pageBinding":{"name":"Detail","type":"Drillthrough",
+                    "parameters":[{"name":"Param"+fid,"boundFilter":fid,"fieldExpr":field("Occupation and NOC")}]}}
+        schema(page/"page.json",RS+"page/2.0.0",name=page.name,displayName=name,displayOption="FitToPage",
+               height=720,width=1280,objects={"background":prop(color=color("#F3F5F7"),transparency=literal("0D"))},**extra)
+        heading(page,name)
+        if name=="Demand Over Time":
+            for x,(t,n) in zip((34,443,852),[("Job postings · location records","Location records"),
+                    ("Advertised vacancies","Advertised openings"),("Latest month vs previous month · postings","Monthly change")]):card(page,t,n,x)
+            visual(page,"Monthly job demand · location records and openings","lineChart",(34,279,735,370),
+                   {"Category":["Month"],"Y":["Location records","Advertised openings"]},("Month","Ascending"),
+                   objs={"valueAxis":prop(showAxisTitle=literal("false"))})
+            bar(page,"Top 10 occupations · posting locations","Occupation and NOC","Top occupation records",(785,279,461,370),["Advertised openings"],ranked=True)
+        elif name=="Geographic Distribution":
+            geo={"geoJson":{"type":string("shared"),"name":string("canada.provinces.topo"),
+                 "content":{"expr":{"ResourcePackageItem":{"PackageName":"SharedResources","PackageType":2,"ItemName":"canada.provinces.topo"}}}}}
+            visual(page,"Canada · postings by province or territory","shapeMap",(34,174,731,475),
+                {"Category":["Map province"],"Value":["Location records"],"Tooltips":["Advertised openings"]},
+                objs={"shape":prop(map=geo,projectionEnum=string("orthographic"))})
+            bar(page,"Postings by province or territory","Province","Location records",(781,174,465,229),["Advertised openings"])
+            bar(page,"Top 10 cities · posting locations","City and province","Top city records",(781,418,465,231),["Advertised openings"],ranked=True)
+        elif name=="Qualifications":
+            visual(page,"Education requirements by occupation · posting locations","barChart",(34,174,590,475),
+                   {"Category":["Occupation and NOC"],"Series":["Education"],"Y":["Location records"]})
+            bar(page,"Experience requirements · posting locations","Experience","Location records",(640,174,606,227))
+            visual(page,"Occupation and qualification comparison","tableEx",(640,417,606,232),
+                   {"Values":["Occupation and NOC","Education","Experience","Location records"]},("Location records","Descending"))
+        elif name=="Compensation":
+            for x,(t,n) in zip((34,443,852),[("Average advertised midpoint · CAD/hour","Average hourly midpoint"),
+                    ("Median advertised midpoint · CAD/hour","Median hourly midpoint"),("Comparable hourly records","Hourly records")]):card(page,t,n,x)
+            bar(page,"Average pay · CAD/hour · 10 occupations with most hourly records","Occupation and NOC","Hourly pay in leading occupations",
+                (34,279,590,370),["Hourly records","Average hourly lower","Average hourly upper"],ranked=True)
+            visual(page,"Average range by province · CAD/hour · marker is midpoint","tableEx",(640,279,606,370),
+                   {"Values":["Province","Hourly range graphic","Average hourly lower","Average hourly upper","Average hourly midpoint"]},
+                   ("Average hourly midpoint","Descending"),objs={"grid":prop(imageHeight=literal("18D"))})
+        elif name=="Work Conditions":
+            visual(page,"Employment type · posting locations","donutChart",(34,174,384,475),
+                   {"Category":["Employment type"],"Y":["Location records"]})
+            visual(page,"Weekly hours · midpoint of reported range","clusteredColumnChart",(433,174,386,475),
+                   {"Category":["Weekly hours band"],"Y":["Location records"]},("Weekly hours band","Ascending"))
+            visual(page,"Work arrangements and benefits · records","barChart",(834,174,412,475),
+                   {"Category":["Indicator"],"Y":["Yes","No","Not recorded"]})
+        elif name=="Overview":
+            for x,(t,n) in zip((34,443,852),[("Posting locations","Location records"),("Advertised openings","Advertised openings"),
+                                            ("Comparable hourly records","Hourly records")]):card(page,t,n,x)
+            visual(page,"Posting locations by first-posting month and source","clusteredColumnChart",(34,279,610,370),
+                   {"Category":["Month"],"Series":["Source"],"Y":["Location records"]},("Month","Ascending"))
+            visual(page,"Occupation summary · right-click to drill through","tableEx",(660,279,586,370),
+                   {"Values":["Occupation and NOC","Location records","Advertised openings","Average hourly midpoint"]},("Location records","Descending"))
+        else:
+            visual(page,"Occupation by month","tableEx",(34,174,594,475),
+                   {"Values":["Occupation and NOC","Month","Location records","Advertised openings","Hourly records","Median hourly midpoint"]},("Month","Ascending"))
+            visual(page,"Locations within province and economic region","tableEx",(644,174,602,475),
+                   {"Values":["Province","Economic region","City","Location records","Advertised openings"]},("Location records","Descending"))
+            visual(page,"Back to selection","actionButton",(1035,17,211,49),objs={"text":prop(show=literal("true"),text=string("Back to selection"))},
+                   container={"visualLink":prop(show=literal("true"),type=string("Back"))})
+def build():
+    schema(DEST/"Job Bank.pbip","pbip/pbipProperties/1.0.0",version="1.0",artifacts=[{"report":{"path":REPORT.name}}],settings={"enableAutoRecovery":True})
+    schema(REPORT/"definition.pbir","item/report/definitionProperties/2.0.0",version="4.0",datasetReference={"byPath":{"path":"../"+MODEL.name}})
+    schema(MODEL/"definition.pbism","item/semanticModel/definitionProperties/1.0.0",version="1.0",settings={})
+    write(MODEL/"model.bim",build_model(HOST,PORT,DATABASE))
+    schema(DEF/"version.json",RS+"versionMetadata/1.0.0",version="2.0.0")
+    nv={"visual":"2.1.0","report":"3.0.0","page":"2.0.0"}
+    theme={"name":"D42Blueprint","dataColors":["#526E89","#94A5B7","#CBD4DE","#718D9F","#334D67","#AAB8C4","#84939E"],
+           "background":"#FFFFFF","foreground":"#25384B","tableAccent":"#526E89"}
+    write(REPORT/"StaticResources/RegisteredResources/D42Blueprint.json",theme)
+    schema(DEF/"report.json",RS+"report/3.0.0",themeCollection={
+        "baseTheme":{"name":"CY24SU10","type":"SharedResources","reportVersionAtImport":nv},
+        "customTheme":{"name":"D42Blueprint","type":"RegisteredResources","reportVersionAtImport":nv}},
+        resourcePackages=[{"name":"SharedResources","type":"SharedResources","items":[
+            {"name":"CY24SU10","path":"BaseThemes/CY24SU10.json","type":"BaseTheme"},
+            {"name":"canada.provinces.topo","path":"Shapemaps/canada.provinces.topo.json","type":"ShapeMap"}]},
+            {"name":"RegisteredResources","type":"RegisteredResources","items":[
+            {"name":"D42Blueprint","path":"D42Blueprint.json","type":"CustomTheme"}]}])
+    all_pages()
+    schema(DEF/"pages/pages.json",RS+"pagesMetadata/1.0.0",pageOrder=[key(x) for x in PAGES+[DETAIL]],activePageName=key("Demand Over Time"))
 if __name__=="__main__":
-    make_model()
-    make_report()
-    print("Wrote Power BI project with direct MySQL refresh.")
+    build()
+    print("Wrote the D4.2 Power BI project.")

@@ -1,0 +1,15 @@
+{
+  "name": "D42Blueprint",
+  "dataColors": [
+    "#526E89",
+    "#94A5B7",
+    "#CBD4DE",
+    "#718D9F",
+    "#334D67",
+    "#AAB8C4",
+    "#84939E"
+  ],
+  "background": "#FFFFFF",
+  "foreground": "#25384B",
+  "tableAccent": "#526E89"
+}

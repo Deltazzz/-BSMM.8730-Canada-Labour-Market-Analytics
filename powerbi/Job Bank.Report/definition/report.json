@@ -9,6 +9,44 @@
         "report": "3.0.0",
         "page": "2.0.0"
       }
+    },
+    "customTheme": {
+      "name": "D42Blueprint",
+      "type": "RegisteredResources",
+      "reportVersionAtImport": {
+        "visual": "2.1.0",
+        "report": "3.0.0",
+        "page": "2.0.0"
+      }
     }
-  }
+  },
+  "resourcePackages": [
+    {
+      "name": "SharedResources",
+      "type": "SharedResources",
+      "items": [
+        {
+          "name": "CY24SU10",
+          "path": "BaseThemes/CY24SU10.json",
+          "type": "BaseTheme"
+        },
+        {
+          "name": "canada.provinces.topo",
+          "path": "Shapemaps/canada.provinces.topo.json",
+          "type": "ShapeMap"
+        }
+      ]
+    },
+    {
+      "name": "RegisteredResources",
+      "type": "RegisteredResources",
+      "items": [
+        {
+          "name": "D42Blueprint",
+          "path": "D42Blueprint.json",
+          "type": "CustomTheme"
+        }
+      ]
+    }
+  ]
 }

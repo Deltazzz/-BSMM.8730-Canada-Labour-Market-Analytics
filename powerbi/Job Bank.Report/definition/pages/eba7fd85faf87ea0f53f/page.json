@@ -5,11 +5,37 @@
   "displayOption": "FitToPage",
   "height": 720,
   "width": 1280,
+  "objects": {
+    "background": [
+      {
+        "properties": {
+          "color": {
+            "solid": {
+              "color": {
+                "expr": {
+                  "Literal": {
+                    "Value": "'#F3F5F7'"
+                  }
+                }
+              }
+            }
+          },
+          "transparency": {
+            "expr": {
+              "Literal": {
+                "Value": "0D"
+              }
+            }
+          }
+        }
+      }
+    ]
+  },
   "visibility": "HiddenInViewMode",
   "filterConfig": {
     "filters": [
       {
-        "name": "Filtereba7fd85faf87ea0f53f1897",
+        "name": "Filter593abcee04139b8f92b8",
         "field": {
           "Column": {
             "Expression": {
@@ -17,7 +43,7 @@
                 "Entity": "Postings"
               }
             },
-            "Property": "Occupation"
+            "Property": "Occupation and NOC"
           }
         },
         "type": "Categorical",
@@ -26,12 +52,12 @@
     ]
   },
   "pageBinding": {
-    "name": "Pod",
+    "name": "Detail",
     "type": "Drillthrough",
     "parameters": [
       {
-        "name": "Param_Filtereba7fd85faf87ea0f53f1897",
-        "boundFilter": "Filtereba7fd85faf87ea0f53f1897",
+        "name": "ParamFilter593abcee04139b8f92b8",
+        "boundFilter": "Filter593abcee04139b8f92b8",
         "fieldExpr": {
           "Column": {
             "Expression": {
@@ -39,7 +65,7 @@
                 "Entity": "Postings"
               }
             },
-            "Property": "Occupation"
+            "Property": "Occupation and NOC"
           }
         }
       }

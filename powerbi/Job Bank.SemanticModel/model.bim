@@ -128,38 +128,157 @@
             "dataType": "double",
             "sourceColumn": "Midpoint amount",
             "summarizeBy": "none"
+          },
+          {
+            "name": "City",
+            "dataType": "string",
+            "sourceColumn": "City",
+            "summarizeBy": "none"
+          },
+          {
+            "name": "City and province",
+            "dataType": "string",
+            "sourceColumn": "City and province",
+            "summarizeBy": "none"
+          },
+          {
+            "name": "Occupation and NOC",
+            "dataType": "string",
+            "sourceColumn": "Occupation and NOC",
+            "summarizeBy": "none"
+          },
+          {
+            "name": "Weekly hours band",
+            "dataType": "string",
+            "sourceColumn": "Weekly hours band",
+            "summarizeBy": "none",
+            "sortByColumn": "Hours sort"
+          },
+          {
+            "name": "Hours sort",
+            "dataType": "int64",
+            "sourceColumn": "Hours sort",
+            "summarizeBy": "none",
+            "isHidden": true
+          },
+          {
+            "name": "Dental flag",
+            "dataType": "string",
+            "sourceColumn": "Dental flag",
+            "summarizeBy": "none"
+          },
+          {
+            "name": "Medical flag",
+            "dataType": "string",
+            "sourceColumn": "Medical flag",
+            "summarizeBy": "none"
+          },
+          {
+            "name": "Evening flag",
+            "dataType": "string",
+            "sourceColumn": "Evening flag",
+            "summarizeBy": "none"
+          },
+          {
+            "name": "Period date",
+            "dataType": "dateTime",
+            "sourceColumn": "Period date",
+            "summarizeBy": "none"
+          },
+          {
+            "name": "Map province",
+            "type": "calculated",
+            "dataType": "string",
+            "summarizeBy": "none",
+            "dataCategory": "StateOrProvince",
+            "expression": "SUBSTITUTE(Postings[Province],\"Québec\",\"Quebec\")"
           }
         ],
         "measures": [
           {
             "name": "Location records",
-            "expression": "COUNTROWS('Postings')",
+            "expression": "COUNTROWS(Postings)",
             "formatString": "#,0"
           },
           {
             "name": "Advertised openings",
-            "expression": "SUM('Postings'[Vacancies])",
+            "expression": "SUM(Postings[Vacancies])",
             "formatString": "#,0"
           },
           {
             "name": "Hourly records",
-            "expression": "CALCULATE(COUNT('Postings'[Midpoint amount]), KEEPFILTERS('Postings'[Pay period] = \"Hour\"))",
+            "expression": "CALCULATE(COUNT(Postings[Midpoint amount]), KEEPFILTERS(Postings[Pay period] = \"Hour\"))",
             "formatString": "#,0"
           },
           {
-            "name": "Median hourly lower",
-            "expression": "CALCULATE(MEDIAN('Postings'[Lower amount]), KEEPFILTERS('Postings'[Pay period] = \"Hour\"))",
-            "formatString": "$#,0.00"
-          },
-          {
-            "name": "Median hourly upper",
-            "expression": "CALCULATE(MEDIAN('Postings'[Upper amount]), KEEPFILTERS('Postings'[Pay period] = \"Hour\"))",
+            "name": "Average hourly midpoint",
+            "expression": "CALCULATE(AVERAGE(Postings[Midpoint amount]), KEEPFILTERS(Postings[Pay period] = \"Hour\"))",
             "formatString": "$#,0.00"
           },
           {
             "name": "Median hourly midpoint",
-            "expression": "CALCULATE(MEDIAN('Postings'[Midpoint amount]), KEEPFILTERS('Postings'[Pay period] = \"Hour\"))",
+            "expression": "CALCULATE(MEDIAN(Postings[Midpoint amount]), KEEPFILTERS(Postings[Pay period] = \"Hour\"))",
             "formatString": "$#,0.00"
+          },
+          {
+            "name": "Average hourly lower",
+            "expression": "CALCULATE(AVERAGE(Postings[Lower amount]), KEEPFILTERS(Postings[Pay period] = \"Hour\"))",
+            "formatString": "$#,0.00"
+          },
+          {
+            "name": "Average hourly upper",
+            "expression": "CALCULATE(AVERAGE(Postings[Upper amount]), KEEPFILTERS(Postings[Pay period] = \"Hour\"))",
+            "formatString": "$#,0.00"
+          },
+          {
+            "name": "Median hourly lower",
+            "expression": "CALCULATE(MEDIAN(Postings[Lower amount]), KEEPFILTERS(Postings[Pay period] = \"Hour\"))",
+            "formatString": "$#,0.00"
+          },
+          {
+            "name": "Median hourly upper",
+            "expression": "CALCULATE(MEDIAN(Postings[Upper amount]), KEEPFILTERS(Postings[Pay period] = \"Hour\"))",
+            "formatString": "$#,0.00"
+          },
+          {
+            "name": "Monthly change",
+            "expression": "VAR d = MAX(Postings[Period date])\nVAR prior = EDATE(d,-1)\nVAR currentCount = CALCULATE([Location records],REMOVEFILTERS(Postings[Month]),Postings[Period date]=d)\nVAR priorCount = CALCULATE([Location records],REMOVEFILTERS(Postings[Month]),Postings[Period date]=prior)\nRETURN DIVIDE(currentCount-priorCount,priorCount)",
+            "formatString": "+0.0%;-0.0%;0.0%"
+          },
+          {
+            "name": "Yes",
+            "expression": "SWITCH(SELECTEDVALUE(Indicators[Indicator]),\"Virtual work\", CALCULATE([Location records],KEEPFILTERS(Postings[Telework flag]=\"Yes\")),\n\"Weekend\", CALCULATE([Location records],KEEPFILTERS(Postings[Weekend flag]=\"Yes\")),\n\"Evening\", CALCULATE([Location records],KEEPFILTERS(Postings[Evening flag]=\"Yes\")),\n\"Dental benefit\", CALCULATE([Location records],KEEPFILTERS(Postings[Dental flag]=\"Yes\")),\n\"Medical benefit\", CALCULATE([Location records],KEEPFILTERS(Postings[Medical flag]=\"Yes\")),\n\"Permanent term\", CALCULATE([Location records],KEEPFILTERS(Postings[Employment term]=\"Permanent employment\")))",
+            "formatString": "#,0"
+          },
+          {
+            "name": "No",
+            "expression": "SWITCH(SELECTEDVALUE(Indicators[Indicator]),\"Virtual work\", CALCULATE([Location records],KEEPFILTERS(Postings[Telework flag]=\"No\")),\n\"Weekend\", CALCULATE([Location records],KEEPFILTERS(Postings[Weekend flag]=\"No\")),\n\"Evening\", CALCULATE([Location records],KEEPFILTERS(Postings[Evening flag]=\"No\")),\n\"Dental benefit\", CALCULATE([Location records],KEEPFILTERS(Postings[Dental flag]=\"No\")),\n\"Medical benefit\", CALCULATE([Location records],KEEPFILTERS(Postings[Medical flag]=\"No\")),\n\"Permanent term\", CALCULATE([Location records],KEEPFILTERS(NOT(Postings[Employment term] IN {\"Permanent employment\",\"Not recorded\"}))))",
+            "formatString": "#,0"
+          },
+          {
+            "name": "Not recorded",
+            "expression": "SWITCH(SELECTEDVALUE(Indicators[Indicator]),\"Virtual work\", CALCULATE([Location records],KEEPFILTERS(Postings[Telework flag]=\"Not recorded\")),\n\"Weekend\", CALCULATE([Location records],KEEPFILTERS(Postings[Weekend flag]=\"Not recorded\")),\n\"Evening\", CALCULATE([Location records],KEEPFILTERS(Postings[Evening flag]=\"Not recorded\")),\n\"Dental benefit\", CALCULATE([Location records],KEEPFILTERS(Postings[Dental flag]=\"Not recorded\")),\n\"Medical benefit\", CALCULATE([Location records],KEEPFILTERS(Postings[Medical flag]=\"Not recorded\")),\n\"Permanent term\", CALCULATE([Location records],KEEPFILTERS(Postings[Employment term]=\"Not recorded\")))",
+            "formatString": "#,0"
+          },
+          {
+            "name": "Top occupation records",
+            "expression": "VAR __EligibleCategories =\n    FILTER(ALLSELECTED(Postings[Occupation and NOC]), Postings[Occupation and NOC] <> \"Not recorded\" && [Location records] > 0)\nVAR __TopCategories =\n    TOPN(10, __EligibleCategories, [Location records], DESC, Postings[Occupation and NOC], ASC)\nRETURN IF(CONTAINS(__TopCategories, Postings[Occupation and NOC], SELECTEDVALUE(Postings[Occupation and NOC])), [Location records])",
+            "formatString": "#,0"
+          },
+          {
+            "name": "Top city records",
+            "expression": "VAR __EligibleCategories =\n    FILTER(ALLSELECTED(Postings[City and province]), Postings[City and province] <> \"Not recorded\" && [Location records] > 0)\nVAR __TopCategories =\n    TOPN(10, __EligibleCategories, [Location records], DESC, Postings[City and province], ASC)\nRETURN IF(CONTAINS(__TopCategories, Postings[City and province], SELECTEDVALUE(Postings[City and province])), [Location records])",
+            "formatString": "#,0"
+          },
+          {
+            "name": "Hourly pay in leading occupations",
+            "expression": "VAR __EligibleCategories =\n    FILTER(ALLSELECTED(Postings[Occupation and NOC]), Postings[Occupation and NOC] <> \"Not recorded\" && [Hourly records] > 0)\nVAR __TopCategories =\n    TOPN(10, __EligibleCategories, [Hourly records], DESC, Postings[Occupation and NOC], ASC)\nRETURN IF(CONTAINS(__TopCategories, Postings[Occupation and NOC], SELECTEDVALUE(Postings[Occupation and NOC])), [Average hourly midpoint])",
+            "formatString": "$#,0.00"
+          },
+          {
+            "name": "Hourly range graphic",
+            "expression": "VAR upperScale = MAXX(ALLSELECTED(Postings[Province]),[Average hourly upper])\nVAR l = 4+INT(140*DIVIDE([Average hourly lower],upperScale,0))\nVAR u = 4+INT(140*DIVIDE([Average hourly upper],upperScale,0))\nVAR m = 4+INT(140*DIVIDE([Average hourly midpoint],upperScale,0))\nRETURN IF([Hourly records]>0,\"data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='150' height='18'><path d='M\"&l&\" 9H\"&u&\"' stroke='%239aaabd' stroke-width='4'/><rect x='\"&(m-3)&\"' y='5' width='7' height='8' fill='%23526e89'/></svg>\")",
+            "dataCategory": "ImageUrl"
           }
         ],
         "partitions": [
@@ -174,6 +293,29 @@
                 "    Postings = Source{[Schema=\"jobbank\", Item=\"powerbi_postings\"]}[Data]",
                 "in",
                 "    Postings"
+              ]
+            }
+          }
+        ]
+      },
+      {
+        "name": "Indicators",
+        "columns": [
+          {
+            "name": "Indicator",
+            "dataType": "string",
+            "sourceColumn": "Indicator",
+            "summarizeBy": "none"
+          }
+        ],
+        "partitions": [
+          {
+            "name": "Indicators",
+            "mode": "import",
+            "source": {
+              "type": "m",
+              "expression": [
+                "#table(type table [Indicator=text], {{\"Virtual work\"},{\"Weekend\"},{\"Evening\"},{\"Dental benefit\"},{\"Medical benefit\"},{\"Permanent term\"}})"
               ]
             }
           }

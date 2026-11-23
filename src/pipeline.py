@@ -6,7 +6,9 @@ import hashlib
 import re
 from decimal import Decimal
 
-from database import connect, create_schema, reload
+from database import connect, create_schema, reload, execute_file
+from context_data import statcan, load_context, TERMS
+from datetime import datetime, timezone
 import unicodedata
 from collections import Counter
 from datetime import date
@@ -208,6 +210,8 @@ def main():
     files = acquire(args.download)
     CLEAN.mkdir(parents=True, exist_ok=True)
     RESULTS.mkdir(exist_ok=True)
+    months = {month for month, *_ in files}
+    observations, series_url, stat_audit = statcan(months, args.download)
     with TemporaryDirectory(dir=ROOT) as td:
         tmp = Path(td)
         columns, expected = prepare(files, tmp)
@@ -219,6 +223,26 @@ def main():
             db.commit()
             db.start_transaction()
             reload(cursor, tmp, columns)
+            execute_file(cursor, ROOT / "src/integrate.sql")
+            load_context(cursor, observations, series_url)
+            cursor.execute("SELECT COUNT(*),COUNT(occupation_id),COUNT(location_id),COUNT(period_id) FROM JobPosting")
+            total, noc_matched, located, dated = cursor.fetchone()
+            if (total, located, dated) != (expected, expected, expected):
+                raise ValueError("Relational integration changed the posting grain")
+            cursor.execute("SELECT COUNT(education)+COUNT(experience), COUNT(noc) FROM postings")
+            links, expected_noc = cursor.fetchone()
+            cursor.execute("SELECT COUNT(*) FROM PostingQualification")
+            if cursor.fetchone()[0] != links or noc_matched != expected_noc:
+                raise ValueError("Qualification or NOC mapping differs from known source values")
+            csvout(tmp/"integration.csv", ["dimension","matched","eligible","all_records"],
+                   [("NOC 2021",noc_matched,expected_noc,total),("Location",located,total,total),
+                    ("Month",dated,total,total),("Qualification links",links,links,total),
+                    ("StatCan months",len(observations),len(months),len(months))])
+            csvout(tmp/"statcan_context.csv", ["period","geography","unit","unemployment_rate","source_url"],
+                   [(m,"Canada","percent",v,series_url) for m,v in sorted(observations.items())])
+            csvout(tmp/"supplementary_sources.csv", ["source","status","url","sha256","retrieved_at","processed_at"],
+                   [("StatCan",stat_audit[0],series_url,stat_audit[1],stat_audit[2],datetime.now(timezone.utc).isoformat()),
+                    ("Job Bank occupation profiles","Skipped automated retrieval under published terms",TERMS,"","",datetime.now(timezone.utc).isoformat())])
             cursor.execute("SELECT COUNT(*), COUNT(DISTINCT snapshot_id) FROM postings")
             if cursor.fetchone() != (expected, expected):
                 raise ValueError("MySQL count or identifiers differ from the clean data")
@@ -233,4 +257,13 @@ def main():
     print("Rebuilt cleaned records, MySQL database, audit and analysis tables.")
 
 if __name__ == "__main__":
-    main()
+    try:
+        main()
+    except (ValueError, csv.Error) as exc:
+        RESULTS.mkdir(exist_ok=True)
+        with (RESULTS / "rejections.csv").open("a", encoding="utf-8", newline="") as log:
+            writer = csv.writer(log)
+            if log.tell() == 0:
+                writer.writerow(["rejected_at_utc","reason"])
+            writer.writerow([datetime.now(timezone.utc).isoformat(),str(exc)])
+        raise
