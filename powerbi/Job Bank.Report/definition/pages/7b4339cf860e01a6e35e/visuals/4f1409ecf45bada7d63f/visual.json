@@ -3,9 +3,9 @@
   "name": "4f1409ecf45bada7d63f",
   "position": {
     "x": 744,
-    "y": 496,
-    "width": 630,
-    "height": 215,
+    "y": 545,
+    "width": 638,
+    "height": 230,
     "z": 5704,
     "tabOrder": 5704
   },
@@ -34,7 +34,7 @@
                 "color": {
                   "expr": {
                     "Literal": {
-                      "Value": "'#172B2B'"
+                      "Value": "'#1D2430'"
                     }
                   }
                 }
@@ -160,7 +160,7 @@
                 "color": {
                   "expr": {
                     "Literal": {
-                      "Value": "'#495E5E'"
+                      "Value": "'#4D596B'"
                     }
                   }
                 }
@@ -283,7 +283,7 @@
                 "color": {
                   "expr": {
                     "Literal": {
-                      "Value": "'#495E5E'"
+                      "Value": "'#4D596B'"
                     }
                   }
                 }
@@ -294,7 +294,7 @@
                 "color": {
                   "expr": {
                     "Literal": {
-                      "Value": "'#F0F4F1'"
+                      "Value": "'#F0F3F7'"
                     }
                   }
                 }
@@ -339,7 +339,7 @@
                 "color": {
                   "expr": {
                     "Literal": {
-                      "Value": "'#172B2B'"
+                      "Value": "'#1D2430'"
                     }
                   }
                 }
@@ -350,7 +350,7 @@
                 "color": {
                   "expr": {
                     "Literal": {
-                      "Value": "'#172B2B'"
+                      "Value": "'#1D2430'"
                     }
                   }
                 }
@@ -403,7 +403,7 @@
                 "color": {
                   "expr": {
                     "Literal": {
-                      "Value": "'#D6E0DB'"
+                      "Value": "'#D8DDE5'"
                     }
                   }
                 }
@@ -462,7 +462,7 @@
                 "color": {
                   "expr": {
                     "Literal": {
-                      "Value": "'#172B2B'"
+                      "Value": "'#1D2430'"
                     }
                   }
                 }
@@ -473,7 +473,7 @@
                 "color": {
                   "expr": {
                     "Literal": {
-                      "Value": "'#E1F1EB'"
+                      "Value": "'#E6EEF9'"
                     }
                   }
                 }

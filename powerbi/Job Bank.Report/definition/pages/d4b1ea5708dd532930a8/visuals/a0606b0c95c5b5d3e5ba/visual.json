@@ -2,10 +2,10 @@
   "$schema": "https://developer.microsoft.com/json-schemas/fabric/item/report/definition/visualContainer/2.1.0/schema.json",
   "name": "a0606b0c95c5b5d3e5ba",
   "position": {
-    "x": 63,
-    "y": 371,
-    "width": 579,
-    "height": 311,
+    "x": 817,
+    "y": 414,
+    "width": 567,
+    "height": 306,
     "z": 3773,
     "tabOrder": 3773
   },
@@ -34,7 +34,7 @@
                 "color": {
                   "expr": {
                     "Literal": {
-                      "Value": "'#172B2B'"
+                      "Value": "'#1D2430'"
                     }
                   }
                 }
@@ -160,7 +160,7 @@
                 "color": {
                   "expr": {
                     "Literal": {
-                      "Value": "'#495E5E'"
+                      "Value": "'#4D596B'"
                     }
                   }
                 }
@@ -275,7 +275,7 @@
                 "color": {
                   "expr": {
                     "Literal": {
-                      "Value": "'#495E5E'"
+                      "Value": "'#4D596B'"
                     }
                   }
                 }
@@ -320,7 +320,7 @@
                 "color": {
                   "expr": {
                     "Literal": {
-                      "Value": "'#495E5E'"
+                      "Value": "'#4D596B'"
                     }
                   }
                 }
@@ -331,7 +331,7 @@
                 "color": {
                   "expr": {
                     "Literal": {
-                      "Value": "'#D6E0DB'"
+                      "Value": "'#D8DDE5'"
                     }
                   }
                 }
@@ -397,7 +397,7 @@
                 "color": {
                   "expr": {
                     "Literal": {
-                      "Value": "'#495E5E'"
+                      "Value": "'#4D596B'"
                     }
                   }
                 }
@@ -435,7 +435,7 @@
                 "color": {
                   "expr": {
                     "Literal": {
-                      "Value": "'#172B2B'"
+                      "Value": "'#1D2430'"
                     }
                   }
                 }

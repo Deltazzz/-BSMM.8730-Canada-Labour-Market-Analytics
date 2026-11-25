@@ -2,10 +2,10 @@
   "$schema": "https://developer.microsoft.com/json-schemas/fabric/item/report/definition/visualContainer/2.1.0/schema.json",
   "name": "8181204c395d94557b5a",
   "position": {
-    "x": 734,
-    "y": 371,
-    "width": 646,
-    "height": 327,
+    "x": 728,
+    "y": 412,
+    "width": 656,
+    "height": 366,
     "z": 4444,
     "tabOrder": 4444
   },
@@ -34,7 +34,7 @@
                 "color": {
                   "expr": {
                     "Literal": {
-                      "Value": "'#172B2B'"
+                      "Value": "'#1D2430'"
                     }
                   }
                 }
@@ -160,7 +160,7 @@
                 "color": {
                   "expr": {
                     "Literal": {
-                      "Value": "'#495E5E'"
+                      "Value": "'#4D596B'"
                     }
                   }
                 }
@@ -299,7 +299,7 @@
                 "color": {
                   "expr": {
                     "Literal": {
-                      "Value": "'#495E5E'"
+                      "Value": "'#4D596B'"
                     }
                   }
                 }
@@ -310,7 +310,7 @@
                 "color": {
                   "expr": {
                     "Literal": {
-                      "Value": "'#F0F4F1'"
+                      "Value": "'#F0F3F7'"
                     }
                   }
                 }
@@ -355,7 +355,7 @@
                 "color": {
                   "expr": {
                     "Literal": {
-                      "Value": "'#172B2B'"
+                      "Value": "'#1D2430'"
                     }
                   }
                 }
@@ -366,7 +366,7 @@
                 "color": {
                   "expr": {
                     "Literal": {
-                      "Value": "'#172B2B'"
+                      "Value": "'#1D2430'"
                     }
                   }
                 }
@@ -419,7 +419,7 @@
                 "color": {
                   "expr": {
                     "Literal": {
-                      "Value": "'#D6E0DB'"
+                      "Value": "'#D8DDE5'"
                     }
                   }
                 }
@@ -478,7 +478,7 @@
                 "color": {
                   "expr": {
                     "Literal": {
-                      "Value": "'#172B2B'"
+                      "Value": "'#1D2430'"
                     }
                   }
                 }
@@ -489,7 +489,7 @@
                 "color": {
                   "expr": {
                     "Literal": {
-                      "Value": "'#E1F1EB'"
+                      "Value": "'#E6EEF9'"
                     }
                   }
                 }

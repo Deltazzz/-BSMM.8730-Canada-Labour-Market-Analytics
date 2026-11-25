@@ -2,10 +2,10 @@
   "$schema": "https://developer.microsoft.com/json-schemas/fabric/item/report/definition/visualContainer/2.1.0/schema.json",
   "name": "bb525387acfd47c88501",
   "position": {
-    "x": 84,
-    "y": 1,
-    "width": 540,
-    "height": 42,
+    "x": 79,
+    "y": 12,
+    "width": 362,
+    "height": 45,
     "z": 94,
     "tabOrder": 94
   },
@@ -34,7 +34,7 @@
                 "color": {
                   "expr": {
                     "Literal": {
-                      "Value": "'#172B2B'"
+                      "Value": "'#1D2430'"
                     }
                   }
                 }
@@ -138,7 +138,7 @@
                       "fontFamily": "Segoe UI",
                       "fontSize": "14pt",
                       "fontWeight": "bold",
-                      "color": "#172B2B"
+                      "color": "#1D2430"
                     }
                   }
                 ]

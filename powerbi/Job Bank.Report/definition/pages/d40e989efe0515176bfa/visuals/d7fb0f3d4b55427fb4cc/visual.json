@@ -2,10 +2,10 @@
   "$schema": "https://developer.microsoft.com/json-schemas/fabric/item/report/definition/visualContainer/2.1.0/schema.json",
   "name": "d7fb0f3d4b55427fb4cc",
   "position": {
-    "x": 513,
-    "y": 299,
-    "width": 427,
-    "height": 36,
+    "x": 518,
+    "y": 345,
+    "width": 405,
+    "height": 31,
     "z": 3503,
     "tabOrder": 3503
   },
@@ -34,7 +34,7 @@
                 "color": {
                   "expr": {
                     "Literal": {
-                      "Value": "'#172B2B'"
+                      "Value": "'#1D2430'"
                     }
                   }
                 }
@@ -136,9 +136,9 @@
                     "value": "Vacancies summed across records",
                     "textStyle": {
                       "fontFamily": "Segoe UI",
-                      "fontSize": "9pt",
+                      "fontSize": "10pt",
                       "fontWeight": "normal",
-                      "color": "#DEF0E9"
+                      "color": "#4D596B"
                     }
                   }
                 ]
