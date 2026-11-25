@@ -1,15 +1,43 @@
 {
-  "name": "D42Blueprint",
+  "name": "Job Bank Studio",
   "dataColors": [
-    "#526E89",
-    "#94A5B7",
-    "#CBD4DE",
-    "#718D9F",
-    "#334D67",
-    "#AAB8C4",
-    "#84939E"
+    "#12766C",
+    "#516D9B",
+    "#98672F",
+    "#735899",
+    "#4F8759",
+    "#A65B70",
+    "#247F9D",
+    "#977D3D",
+    "#445B82",
+    "#A56A45",
+    "#58695A",
+    "#C4CEC9"
   ],
   "background": "#FFFFFF",
-  "foreground": "#25384B",
-  "tableAccent": "#526E89"
+  "foreground": "#172B2B",
+  "foregroundNeutralSecondary": "#495E5E",
+  "tableAccent": "#12766C",
+  "minimum": "#DAE9E1",
+  "center": "#67AE99",
+  "maximum": "#164C47",
+  "null": "#C4CEC9",
+  "textClasses": {
+    "title": {
+      "fontFace": "Segoe UI",
+      "color": "#172B2B"
+    },
+    "header": {
+      "fontFace": "Segoe UI",
+      "color": "#172B2B"
+    },
+    "label": {
+      "fontFace": "Segoe UI",
+      "color": "#172B2B"
+    },
+    "callout": {
+      "fontFace": "Segoe UI",
+      "color": "#172B2B"
+    }
+  }
 }

@@ -192,6 +192,13 @@
             "summarizeBy": "none",
             "dataCategory": "StateOrProvince",
             "expression": "SUBSTITUTE(Postings[Province],\"Québec\",\"Quebec\")"
+          },
+          {
+            "name": "Education label",
+            "type": "calculated",
+            "dataType": "string",
+            "summarizeBy": "none",
+            "expression": "SWITCH(Postings[Education],\"Secondary (high) school graduation certificate\",\"Secondary school\",\"No degree, certificate or diploma\",\"No degree or diploma\",\"College/CEGEP\",\"College / CEGEP\",\"College, CEGEP or other non-university certificate or diploma from a program of 1 year to 2 years\",\"College, 1–2 years\",\"Other trades certificate or diploma\",\"Other trades certificate\",\"Bachelor's degree\",\"Bachelor’s degree\",\"College, CEGEP or other non-university certificate or diploma from a program of 3 months to less than 1 year\",\"College, 3–<12 months\",\"Registered Apprenticeship certificate\",\"Registered apprenticeship\",\"Degree in medicine, dentistry, veterinary medicine or optometry\",\"Professional degree\",\"Master's degree\",\"Master’s degree\",\"Earned doctorate degree\",\"Doctorate\",\"Not recorded\",\"Not recorded\",Postings[Education])"
           }
         ],
         "measures": [
@@ -241,6 +248,23 @@
             "formatString": "$#,0.00"
           },
           {
+            "name": "Data coverage",
+            "expression": "VAR firstMonth = CALCULATE(MIN(Postings[Period date]),REMOVEFILTERS())\nVAR lastMonth = CALCULATE(MAX(Postings[Period date]),REMOVEFILTERS())\nRETURN IF(ISBLANK(firstMonth),\"No data loaded\",\n    IF(firstMonth=lastMonth,FORMAT(lastMonth,\"MMM yyyy\",\"en-CA\"),\n        FORMAT(firstMonth,IF(YEAR(firstMonth)=YEAR(lastMonth),\"MMM\",\"MMM yyyy\"),\"en-CA\") & \" – \" & FORMAT(lastMonth,\"MMM yyyy\",\"en-CA\")))"
+          },
+          {
+            "name": "Occupation detail heading",
+            "expression": "SELECTEDVALUE(Postings[Occupation and NOC],\"All selected occupations\")"
+          },
+          {
+            "name": "Full-time share",
+            "expression": "DIVIDE(CALCULATE([Location records],KEEPFILTERS(Postings[Employment type]=\"Full time\")),[Location records])",
+            "formatString": "0.0%"
+          },
+          {
+            "name": "Province count colour",
+            "expression": "VAR recordsHere = [Location records]\nRETURN SWITCH(TRUE(), ISBLANK(recordsHere),\"#F0F3F1\",recordsHere<1000,\"#DAE9E1\",\n    recordsHere<5000,\"#A4CEC0\",recordsHere<10000,\"#67AE99\",recordsHere<25000,\"#358B79\",\n    recordsHere<40000,\"#12685E\",\"#164C47\")"
+          },
+          {
             "name": "Monthly change",
             "expression": "VAR d = MAX(Postings[Period date])\nVAR prior = EDATE(d,-1)\nVAR currentCount = CALCULATE([Location records],REMOVEFILTERS(Postings[Month]),Postings[Period date]=d)\nVAR priorCount = CALCULATE([Location records],REMOVEFILTERS(Postings[Month]),Postings[Period date]=prior)\nRETURN DIVIDE(currentCount-priorCount,priorCount)",
             "formatString": "+0.0%;-0.0%;0.0%"
@@ -251,13 +275,28 @@
             "formatString": "#,0"
           },
           {
+            "name": "Displayed Yes",
+            "expression": "IF(HASONEVALUE(Indicators[Indicator]) && [Location records]>0,COALESCE([Yes],0))",
+            "formatString": "#,0"
+          },
+          {
             "name": "No",
             "expression": "SWITCH(SELECTEDVALUE(Indicators[Indicator]),\"Virtual work\", CALCULATE([Location records],KEEPFILTERS(Postings[Telework flag]=\"No\")),\n\"Weekend\", CALCULATE([Location records],KEEPFILTERS(Postings[Weekend flag]=\"No\")),\n\"Evening\", CALCULATE([Location records],KEEPFILTERS(Postings[Evening flag]=\"No\")),\n\"Dental benefit\", CALCULATE([Location records],KEEPFILTERS(Postings[Dental flag]=\"No\")),\n\"Medical benefit\", CALCULATE([Location records],KEEPFILTERS(Postings[Medical flag]=\"No\")),\n\"Permanent term\", CALCULATE([Location records],KEEPFILTERS(NOT(Postings[Employment term] IN {\"Permanent employment\",\"Not recorded\"}))))",
             "formatString": "#,0"
           },
           {
+            "name": "Displayed No",
+            "expression": "IF(HASONEVALUE(Indicators[Indicator]) && [Location records]>0,COALESCE([No],0))",
+            "formatString": "#,0"
+          },
+          {
             "name": "Not recorded",
             "expression": "SWITCH(SELECTEDVALUE(Indicators[Indicator]),\"Virtual work\", CALCULATE([Location records],KEEPFILTERS(Postings[Telework flag]=\"Not recorded\")),\n\"Weekend\", CALCULATE([Location records],KEEPFILTERS(Postings[Weekend flag]=\"Not recorded\")),\n\"Evening\", CALCULATE([Location records],KEEPFILTERS(Postings[Evening flag]=\"Not recorded\")),\n\"Dental benefit\", CALCULATE([Location records],KEEPFILTERS(Postings[Dental flag]=\"Not recorded\")),\n\"Medical benefit\", CALCULATE([Location records],KEEPFILTERS(Postings[Medical flag]=\"Not recorded\")),\n\"Permanent term\", CALCULATE([Location records],KEEPFILTERS(Postings[Employment term]=\"Not recorded\")))",
+            "formatString": "#,0"
+          },
+          {
+            "name": "Displayed Not recorded",
+            "expression": "IF(HASONEVALUE(Indicators[Indicator]) && [Location records]>0,COALESCE([Not recorded],0))",
             "formatString": "#,0"
           },
           {
@@ -276,8 +315,63 @@
             "formatString": "$#,0.00"
           },
           {
+            "name": "Province leading records",
+            "expression": "VAR __Candidates=FILTER(ALLSELECTED(Postings[Province]),[Location records]>0)\nVAR __DisplayRows=TOPN(7,__Candidates,[Location records],DESC,Postings[Province],ASC)\nRETURN IF(CONTAINS(__DisplayRows,Postings[Province],SELECTEDVALUE(Postings[Province])),[Location records])",
+            "formatString": "#,0"
+          },
+          {
+            "name": "Province leading openings",
+            "expression": "IF(NOT ISBLANK([Province leading records]),[Advertised openings])",
+            "formatString": "#,0"
+          },
+          {
+            "name": "Province remaining records",
+            "expression": "VAR __Candidates=FILTER(ALLSELECTED(Postings[Province]),[Location records]>0)\nVAR __DisplayRows=EXCEPT(__Candidates,TOPN(7,__Candidates,[Location records],DESC,Postings[Province],ASC))\nRETURN IF(CONTAINS(__DisplayRows,Postings[Province],SELECTEDVALUE(Postings[Province])),[Location records])",
+            "formatString": "#,0"
+          },
+          {
+            "name": "Province remaining openings",
+            "expression": "IF(NOT ISBLANK([Province remaining records]),[Advertised openings])",
+            "formatString": "#,0"
+          },
+          {
+            "name": "Province scale maximum",
+            "expression": "1.24*MAXX(FILTER(ALLSELECTED(Postings[Province]),[Location records]>0),[Location records])",
+            "formatString": "#,0"
+          },
+          {
+            "name": "City leading records",
+            "expression": "VAR __Candidates=FILTER(ALLSELECTED(Postings[City and province]),[Location records]>0 && Postings[City and province]<>\"Not recorded\")\nVAR __DisplayRows=TOPN(5,__Candidates,[Location records],DESC,Postings[City and province],ASC)\nRETURN IF(CONTAINS(__DisplayRows,Postings[City and province],SELECTEDVALUE(Postings[City and province])),[Location records])",
+            "formatString": "#,0"
+          },
+          {
+            "name": "City leading openings",
+            "expression": "IF(NOT ISBLANK([City leading records]),[Advertised openings])",
+            "formatString": "#,0"
+          },
+          {
+            "name": "City remaining records",
+            "expression": "VAR __Candidates=FILTER(ALLSELECTED(Postings[City and province]),[Location records]>0 && Postings[City and province]<>\"Not recorded\")\nVAR __DisplayRows=EXCEPT(TOPN(10,__Candidates,[Location records],DESC,Postings[City and province],ASC),TOPN(5,__Candidates,[Location records],DESC,Postings[City and province],ASC))\nRETURN IF(CONTAINS(__DisplayRows,Postings[City and province],SELECTEDVALUE(Postings[City and province])),[Location records])",
+            "formatString": "#,0"
+          },
+          {
+            "name": "City remaining openings",
+            "expression": "IF(NOT ISBLANK([City remaining records]),[Advertised openings])",
+            "formatString": "#,0"
+          },
+          {
+            "name": "City scale maximum",
+            "expression": "1.24*MAXX(FILTER(ALLSELECTED(Postings[City and province]),[Location records]>0 && Postings[City and province]<>\"Not recorded\"),[Location records])",
+            "formatString": "#,0"
+          },
+          {
             "name": "Hourly range graphic",
-            "expression": "VAR upperScale = MAXX(ALLSELECTED(Postings[Province]),[Average hourly upper])\nVAR l = 4+INT(140*DIVIDE([Average hourly lower],upperScale,0))\nVAR u = 4+INT(140*DIVIDE([Average hourly upper],upperScale,0))\nVAR m = 4+INT(140*DIVIDE([Average hourly midpoint],upperScale,0))\nRETURN IF([Hourly records]>0,\"data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='150' height='18'><path d='M\"&l&\" 9H\"&u&\"' stroke='%239aaabd' stroke-width='4'/><rect x='\"&(m-3)&\"' y='5' width='7' height='8' fill='%23526e89'/></svg>\")",
+            "expression": "VAR upperScale = MAXX(ALLSELECTED(Postings[Province]),[Average hourly upper])\nVAR l = 4+INT(140*DIVIDE([Average hourly lower],upperScale,0))\nVAR u = 4+INT(140*DIVIDE([Average hourly upper],upperScale,0))\nVAR m = 4+INT(140*DIVIDE([Average hourly midpoint],upperScale,0))\nRETURN IF([Hourly records]>0,\"data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='150' height='18'><path d='M4 9H144' stroke='%23D6E0DB'/><path d='M\"&l&\" 9H\"&u&\"' stroke='%2372978C' stroke-width='4'/><circle cx='\"&m&\"' cy='9' r='4' fill='%2308675F'/></svg>\")",
+            "dataCategory": "ImageUrl"
+          },
+          {
+            "name": "Education colour key",
+            "expression": "VAR __labelsInScope = VALUES(Postings[Education label])\nVAR __orderedLabels = ADDCOLUMNS(__labelsInScope,\"@order\",SWITCH(Postings[Education label],\"Secondary school\",1,\"No degree or diploma\",2,\"College / CEGEP\",3,\"College, 1–2 years\",4,\"Other trades certificate\",5,\"Bachelor’s degree\",6,\"College, 3–<12 months\",7,\"Registered apprenticeship\",8,\"Professional degree\",9,\"Master’s degree\",10,\"Doctorate\",11,\"Not recorded\",12,99))\nVAR __perColumn = MAX(1,ROUNDUP(COUNTROWS(__orderedLabels)/3,0))\nRETURN IF([Location records]>0,\"data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='620' height='\" & (__perColumn*24+6) & \"'>\" &\n    CONCATENATEX(__orderedLabels,\n        VAR __nm = Postings[Education label]\n        VAR __ord = [@order]\n        VAR __pos = COUNTROWS(FILTER(__orderedLabels,[@order]<__ord || ([@order]=__ord && Postings[Education label]<__nm)))+0\n        VAR __x = 2+207*INT(__pos/__perColumn)\n        VAR __y = 3+24*MOD(__pos,__perColumn)\n        VAR __labelText = SUBSTITUTE(SUBSTITUTE(SUBSTITUTE(__nm,\"&\",\"&amp;\"),\"<\",\"&lt;\"),\">\",\"&gt;\")\n        RETURN \"<rect x='\" & __x & \"' y='\" & (__y+3) & \"' width='12' height='10' rx='2' fill='\" &\n          SWITCH(__nm,\"Secondary school\",\"%2312766C\",\"No degree or diploma\",\"%23516D9B\",\"College / CEGEP\",\"%2398672F\",\"College, 1–2 years\",\"%23735899\",\"Other trades certificate\",\"%234F8759\",\"Bachelor’s degree\",\"%23A65B70\",\"College, 3–<12 months\",\"%23247F9D\",\"Registered apprenticeship\",\"%23977D3D\",\"Professional degree\",\"%23445B82\",\"Master’s degree\",\"%23A56A45\",\"Doctorate\",\"%2358695A\",\"Not recorded\",\"%23C4CEC9\",\"%23586862\") & \"'/><text x='\" & (__x+19) & \"' y='\" & (__y+13) &\n          \"' font-family='Segoe UI, sans-serif' font-size='12' fill='%232F4847'>\" & __labelText & \"</text>\",\n        \"\") & \"</svg>\")",
             "dataCategory": "ImageUrl"
           }
         ],

@@ -8,6 +8,7 @@ This BSMM.8730 team project uses Python, MySQL and Power BI to examine newly fir
 |---|---|
 | [Final report](reports/D5%20Final%20report.pdf) | Six pages of evidence, denominators, sensitivity analysis and limitations |
 | [Power BI dashboard](powerbi/Job%20Bank.pbix) · [editable project](powerbi/Job%20Bank.pbip) | Six visible pages and an occupation drill-through page. The PBIX opens with the August–October data loaded. Both versions refresh from MySQL. |
+| [Dashboard implementation review](reports/Dashboard%20implementation%20review.pdf) · [full-size screenshots](reports/dashboard-screenshots/) | Each approved mockup beside its Power BI Desktop screenshot, with data checks and native visual differences. |
 | [Final presentation](reports/D6%20Presentation.pdf) | Eight slides for presenting the findings |
 | [Midterm report](reports/D3%20Midterm%20report.pdf) | Retrospective two-release checkpoint |
 | [Field dictionary](data/clean/data_dictionary.csv) | All 65 source fields and seven derived fields, with types and definitions |

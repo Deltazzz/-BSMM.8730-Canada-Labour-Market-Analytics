@@ -3,8 +3,8 @@
   "name": "8e3b51ec39ef0f4c6213",
   "displayName": "Work Conditions",
   "displayOption": "FitToPage",
-  "height": 720,
-  "width": 1280,
+  "height": 810,
+  "width": 1440,
   "objects": {
     "background": [
       {
@@ -14,7 +14,34 @@
               "color": {
                 "expr": {
                   "Literal": {
-                    "Value": "'#F3F5F7'"
+                    "Value": "'#F6F8F6'"
+                  }
+                }
+              }
+            }
+          },
+          "image": {
+            "image": {
+              "name": {
+                "expr": {
+                  "Literal": {
+                    "Value": "'Layout5.png'"
+                  }
+                }
+              },
+              "url": {
+                "expr": {
+                  "ResourcePackageItem": {
+                    "PackageName": "RegisteredResources",
+                    "PackageType": 1,
+                    "ItemName": "Layout5.png"
+                  }
+                }
+              },
+              "scaling": {
+                "expr": {
+                  "Literal": {
+                    "Value": "'Fit'"
                   }
                 }
               }

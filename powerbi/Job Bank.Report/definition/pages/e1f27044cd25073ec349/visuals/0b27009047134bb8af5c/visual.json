@@ -2,12 +2,12 @@
   "$schema": "https://developer.microsoft.com/json-schemas/fabric/item/report/definition/visualContainer/2.1.0/schema.json",
   "name": "0b27009047134bb8af5c",
   "position": {
-    "x": 34,
-    "y": 9,
-    "width": 800,
-    "height": 70,
-    "z": 124,
-    "tabOrder": 124
+    "x": 39,
+    "y": 69,
+    "width": 1100,
+    "height": 62,
+    "z": 729,
+    "tabOrder": 729
   },
   "visual": {
     "visualType": "textbox",
@@ -19,6 +19,45 @@
               "expr": {
                 "Literal": {
                   "Value": "false"
+                }
+              }
+            },
+            "text": {
+              "expr": {
+                "Literal": {
+                  "Value": "'Report heading'"
+                }
+              }
+            },
+            "fontColor": {
+              "solid": {
+                "color": {
+                  "expr": {
+                    "Literal": {
+                      "Value": "'#172B2B'"
+                    }
+                  }
+                }
+              }
+            },
+            "fontFamily": {
+              "expr": {
+                "Literal": {
+                  "Value": "'Segoe UI'"
+                }
+              }
+            },
+            "fontSize": {
+              "expr": {
+                "Literal": {
+                  "Value": "15D"
+                }
+              }
+            },
+            "bold": {
+              "expr": {
+                "Literal": {
+                  "Value": "true"
                 }
               }
             }
@@ -50,6 +89,40 @@
             }
           }
         }
+      ],
+      "padding": [
+        {
+          "properties": {
+            "top": {
+              "expr": {
+                "Literal": {
+                  "Value": "2D"
+                }
+              }
+            },
+            "bottom": {
+              "expr": {
+                "Literal": {
+                  "Value": "2D"
+                }
+              }
+            },
+            "left": {
+              "expr": {
+                "Literal": {
+                  "Value": "4D"
+                }
+              }
+            },
+            "right": {
+              "expr": {
+                "Literal": {
+                  "Value": "4D"
+                }
+              }
+            }
+          }
+        }
       ]
     },
     "objects": {
@@ -60,23 +133,12 @@
               {
                 "textRuns": [
                   {
-                    "value": "CANADA LABOUR MARKET ANALYTICS",
-                    "textStyle": {
-                      "fontSize": "17pt",
-                      "fontWeight": "bold",
-                      "color": "#243950"
-                    }
-                  }
-                ]
-              },
-              {
-                "textRuns": [
-                  {
                     "value": "Compensation",
                     "textStyle": {
-                      "fontSize": "14pt",
+                      "fontFamily": "Segoe UI",
+                      "fontSize": "30pt",
                       "fontWeight": "bold",
-                      "color": "#526E89"
+                      "color": "#172B2B"
                     }
                   }
                 ]

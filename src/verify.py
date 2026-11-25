@@ -9,7 +9,7 @@ from statistics import median
 from urllib.request import urlopen
 
 from database import connect, HOST, PORT, DATABASE
-from powerbi import FILTERS, PAGES, DETAIL, key
+from powerbi import FILTERS, PAGES, DETAIL, WIDTH, HEIGHT, key
 from pipeline import ROOT, CLEAN, RESULTS, acquire
 
 def require(test, message):
@@ -36,7 +36,7 @@ def load_report():
                     entity = definition["Expression"]["SourceRef"]["Entity"]
                     require(definition["Property"] in measures if typ=="Measure" else (entity,definition["Property"]) in cols,f"Broken binding in {p}")
             pos=d["position"]
-            require(pos["x"]>=0 and pos["y"]>=0 and pos["x"]+pos["width"]<=1280 and pos["y"]+pos["height"]<=720,f"Off-canvas visual {p}")
+            require(pos["x"]>=0 and pos["y"]>=0 and pos["x"]+pos["width"]<=WIDTH and pos["y"]+pos["height"]<=HEIGHT,f"Off-canvas visual {p}")
     code = table["partitions"][0]["source"]["expression"]
     source = "\n".join(code)
     require('MySQL.Database(' in source and f'"{HOST}:{PORT}"' in source and f'Schema="{DATABASE}"' in source
@@ -45,6 +45,8 @@ def load_report():
     order = next(d for p,d in definitions if p.name=="pages.json")
     require(order["pageOrder"] == [key(n) for n in PAGES+[DETAIL]], "Unexpected D4.2 navigation order")
     expected = {
+        "Overview":{"clusteredColumnChart","tableEx","card"},
+        DETAIL:{"tableEx","card"},
         "Demand Over Time":{"lineChart", "clusteredBarChart","card"},
         "Geographic Distribution":{"shapeMap","clusteredBarChart"},
         "Qualifications":{"barChart","clusteredBarChart","tableEx"},
@@ -60,6 +62,14 @@ def load_report():
         require(destinations == {key(target) for target in PAGES}, "Missing page link on "+name)
         synced={v["syncGroup"]["groupName"] for v in visuals if v["visualType"]=="slicer"}
         require(synced=={"D42 "+n for n,_ in FILTERS},"Unsynced filters on "+name)
+        folder=proj/"Job Bank.Report"/"definition"/"pages"/key(name)
+        page=json.loads((folder/"page.json").read_text(encoding="utf8"))
+        art=page["objects"]["background"][0]["properties"]["image"]["image"]["url"]["expr"]["ResourcePackageItem"]["ItemName"]
+        require((proj/"Job Bank.Report"/"StaticResources"/"RegisteredResources"/art).is_file(),"Missing artwork on "+name)
+        for f in folder.glob("visuals/*/visual.json"):
+            vis=json.loads(f.read_text(encoding="utf8"))["visual"]
+            if vis["visualType"]=="slicer" or (vis.get("query") and vis["visualType"]!="card"):
+                require(f.with_name("mobile.json").exists(),"Missing phone layout for "+str(f))
     return [c["sourceColumn"] for c in table["columns"] if "sourceColumn" in c], definitions
 
 

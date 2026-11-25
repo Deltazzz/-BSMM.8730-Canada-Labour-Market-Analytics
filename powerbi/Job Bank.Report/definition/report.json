@@ -45,6 +45,41 @@
           "name": "D42Blueprint",
           "path": "D42Blueprint.json",
           "type": "CustomTheme"
+        },
+        {
+          "name": "Layout0.png",
+          "path": "Layout0.png",
+          "type": "Image"
+        },
+        {
+          "name": "Layout1.png",
+          "path": "Layout1.png",
+          "type": "Image"
+        },
+        {
+          "name": "Layout2.png",
+          "path": "Layout2.png",
+          "type": "Image"
+        },
+        {
+          "name": "Layout3.png",
+          "path": "Layout3.png",
+          "type": "Image"
+        },
+        {
+          "name": "Layout4.png",
+          "path": "Layout4.png",
+          "type": "Image"
+        },
+        {
+          "name": "Layout5.png",
+          "path": "Layout5.png",
+          "type": "Image"
+        },
+        {
+          "name": "Layout6.png",
+          "path": "Layout6.png",
+          "type": "Image"
         }
       ]
     }
